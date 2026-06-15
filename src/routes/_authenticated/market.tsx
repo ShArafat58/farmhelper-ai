@@ -299,6 +299,7 @@ function ListingCard({
   listing: Listing; isOwner: boolean;
   onEdit: () => void; onDelete: () => void; onSold: () => void;
 }) {
+  const { t } = useTranslation();
   const signedFn = useServerFn(getImageSignedUrl);
   const revealFn = useServerFn(revealContact);
   const reportFn = useServerFn(reportListing);
@@ -319,7 +320,7 @@ function ListingCard({
     try {
       const r = await revealFn({ data: { listing_id: listing.id } });
       setContact(r.contact_phone);
-      toast.success(`${r.remaining} reveals left today`);
+      toast.success(t("market.revealsLeft", { n: r.remaining }));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -328,7 +329,7 @@ function ListingCard({
   async function report() {
     try {
       await reportFn({ data: { listing_id: listing.id, reason: null } });
-      toast.success("Reported. Thanks — admins will review.");
+      toast.success(t("market.reportSent"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -347,16 +348,16 @@ function ListingCard({
         <div className="text-muted-foreground">{listing.qty} {listing.unit} · {listing.region ?? listing.country ?? "—"}</div>
         {contact
           ? <div className="rounded bg-accent px-2 py-1 text-sm font-medium">{contact}</div>
-          : <Button variant="outline" size="sm" onClick={reveal}><Phone className="mr-1 h-3 w-3" /> Reveal contact</Button>}
+          : <Button variant="outline" size="sm" onClick={reveal}><Phone className="mr-1 h-3 w-3" /> {t("market.revealContact")}</Button>}
         <div className="flex flex-wrap gap-2 pt-1">
           {isOwner ? (
             <>
-              <Button variant="outline" size="sm" onClick={onEdit}><Pencil className="mr-1 h-3 w-3" /> Edit</Button>
-              <Button variant="outline" size="sm" onClick={onSold}><CheckCircle2 className="mr-1 h-3 w-3" /> Sold</Button>
-              <Button variant="outline" size="sm" onClick={onDelete}><Trash2 className="mr-1 h-3 w-3" /> Delete</Button>
+              <Button variant="outline" size="sm" onClick={onEdit}><Pencil className="mr-1 h-3 w-3" /> {t("common.edit")}</Button>
+              <Button variant="outline" size="sm" onClick={onSold}><CheckCircle2 className="mr-1 h-3 w-3" /> {t("market.sold")}</Button>
+              <Button variant="outline" size="sm" onClick={onDelete}><Trash2 className="mr-1 h-3 w-3" /> {t("common.delete")}</Button>
             </>
           ) : (
-            <Button variant="ghost" size="sm" onClick={report}><Flag className="mr-1 h-3 w-3" /> Report</Button>
+            <Button variant="ghost" size="sm" onClick={report}><Flag className="mr-1 h-3 w-3" /> {t("market.report")}</Button>
           )}
         </div>
       </CardContent>
@@ -376,6 +377,7 @@ function ListingDialog({
     country: string | null; region: string | null; contact_phone: string; image_path: string | null;
   }) => void;
 }) {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState(initial?.crop_name ?? "");
   const [qty, setQty] = useState(initial?.qty?.toString() ?? "");
   const [unit, setUnit] = useState(initial?.unit ?? "kg");
@@ -391,8 +393,8 @@ function ListingDialog({
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return toast.error("JPG/PNG/WEBP only");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5 MB");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return toast.error(t("market.errors.imageType"));
+    if (file.size > 5 * 1024 * 1024) return toast.error(t("market.errors.imageSize"));
     setUploading(true);
     const ext = file.name.split(".").pop() ?? "jpg";
     const path = `${userId}/listings/${crypto.randomUUID()}.${ext}`;
@@ -400,19 +402,19 @@ function ListingDialog({
     setUploading(false);
     if (error) return toast.error(error.message);
     setImagePath(path);
-    toast.success("Image uploaded");
+    toast.success(t("market.imageUploaded"));
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
     const qn = Number(qty); const pn = Number(price);
-    if (!crop.trim()) return setErr("Crop is required.");
-    if (!Number.isFinite(qn) || qn <= 0) return setErr("Qty must be greater than 0.");
-    if (!unit.trim()) return setErr("Unit is required.");
-    if (!Number.isFinite(pn) || pn <= 0) return setErr("Price must be greater than 0.");
-    if (!currency.trim()) return setErr("Currency is required.");
-    if (phone.trim().length < 4) return setErr("Contact phone is required.");
+    if (!crop.trim()) return setErr(t("market.errors.cropRequired"));
+    if (!Number.isFinite(qn) || qn <= 0) return setErr(t("market.errors.qtyPositive"));
+    if (!unit.trim()) return setErr(t("market.errors.unitRequired"));
+    if (!Number.isFinite(pn) || pn <= 0) return setErr(t("market.errors.pricePositive"));
+    if (!currency.trim()) return setErr(t("market.errors.currencyRequired"));
+    if (phone.trim().length < 4) return setErr(t("market.errors.phoneRequired"));
     onSubmit({
       crop_name: crop.trim(), qty: qn, unit: unit.trim(), price: pn, currency: currency.trim().toUpperCase(),
       country: country.trim() ? country.trim().toUpperCase().slice(0, 2) : null,
@@ -424,30 +426,30 @@ function ListingDialog({
 
   return (
     <DialogContent className="max-h-[90vh] overflow-y-auto">
-      <DialogHeader><DialogTitle>{initial ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
+      <DialogHeader><DialogTitle>{initial ? t("market.editListing") : t("market.newListing")}</DialogTitle></DialogHeader>
       <form className="space-y-3" onSubmit={submit}>
-        <div className="grid gap-2"><Label>Crop</Label><Input value={crop} onChange={(e) => setCrop(e.target.value)} maxLength={80} /></div>
+        <div className="grid gap-2"><Label>{t("market.fields.crop")}</Label><Input value={crop} onChange={(e) => setCrop(e.target.value)} maxLength={80} /></div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Qty</Label><Input type="number" step="0.01" value={qty} onChange={(e) => setQty(e.target.value)} /></div>
-          <div className="grid gap-2"><Label>Unit</Label><Input value={unit} onChange={(e) => setUnit(e.target.value)} maxLength={20} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.qty")}</Label><Input type="number" step="0.01" value={qty} onChange={(e) => setQty(e.target.value)} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.unit")}</Label><Input value={unit} onChange={(e) => setUnit(e.target.value)} maxLength={20} /></div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Price</Label><Input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
-          <div className="grid gap-2"><Label>Currency</Label><Input value={currency} onChange={(e) => setCurrency(e.target.value)} maxLength={8} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.price")}</Label><Input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.currency")}</Label><Input value={currency} onChange={(e) => setCurrency(e.target.value)} maxLength={8} /></div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Country (ISO-2)</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={2} /></div>
-          <div className="grid gap-2"><Label>Region</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={80} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.country")}</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={2} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.region")}</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={80} /></div>
         </div>
-        <div className="grid gap-2"><Label>Contact phone</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={30} /></div>
+        <div className="grid gap-2"><Label>{t("market.fields.phone")}</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={30} /></div>
         <div className="grid gap-2">
-          <Label>Image (optional)</Label>
+          <Label>{t("market.fields.photo")} ({t("common.optional")})</Label>
           <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} disabled={uploading} />
-          {imagePath && <p className="text-xs text-muted-foreground">Image attached.</p>}
+          {imagePath && <p className="text-xs text-muted-foreground">{t("cropDoctor.imageAttached")}</p>}
         </div>
         {err && <p className="text-sm text-destructive">{err}</p>}
         <DialogFooter>
-          <Button type="submit" disabled={submitting || uploading}>{submitting ? "Saving…" : "Save"}</Button>
+          <Button type="submit" disabled={submitting || uploading}>{submitting ? t("common.saving") : t("common.save")}</Button>
         </DialogFooter>
       </form>
     </DialogContent>
