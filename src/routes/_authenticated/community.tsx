@@ -144,7 +144,7 @@ function PostCard({ post }: { post: Post }) {
         {post.ai_answer && (
           <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
             <div className="mb-1 flex items-center gap-1 text-xs font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> AI answer
+              <Sparkles className="h-3 w-3" /> {t("community.aiAnswer")}
             </div>
             <p className="whitespace-pre-wrap text-sm">{post.ai_answer}</p>
           </div>
@@ -152,7 +152,7 @@ function PostCard({ post }: { post: Post }) {
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleString()}</span>
           <Button variant="ghost" size="sm" onClick={() => setOpen((o) => !o)}>
-            {open ? "Hide replies" : "View / reply"}
+            {open ? t("community.hideReplies") : t("community.viewReply")}
           </Button>
         </div>
         {open && (
