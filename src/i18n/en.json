@@ -1,0 +1,93 @@
+{
+  "brand": {
+    "name": "FarmHelper",
+    "tagline": "Your Smart Farming Companion"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "cropDoctor": "Crop Doctor",
+    "profitPlanner": "Profit Planner",
+    "calendar": "Calendar",
+    "market": "Market",
+    "community": "Community",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "menu": "Menu"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "bn": "বাংলা"
+  },
+  "landing": {
+    "heroEyebrow": "AI for smallholder farmers",
+    "heroTitle": "Grow smarter. Earn more. Worry less.",
+    "heroSubtitle": "FarmHelper diagnoses crop problems, plans the most profitable crops for your land, builds a smart farm calendar, and connects you directly to buyers — all from your phone.",
+    "ctaStart": "Get started free",
+    "ctaLogin": "I already have an account",
+    "featuresTitle": "Everything a smallholder needs",
+    "features": {
+      "diagnose": {
+        "title": "Diagnose",
+        "body": "Snap a photo of a sick leaf and get an AI diagnosis with treatment steps in your language."
+      },
+      "plan": {
+        "title": "Plan profit",
+        "body": "Tell us your land and season — AI ranks the most profitable crops for your region."
+      },
+      "calendar": {
+        "title": "Smart calendar",
+        "body": "Auto-generated sowing, watering, fertilizing and harvest tasks. Never miss a step."
+      },
+      "sell": {
+        "title": "Sell direct",
+        "body": "List your harvest and reach buyers directly. Skip the middleman, keep the margin."
+      }
+    },
+    "howTitle": "How it works",
+    "how": {
+      "step1Title": "1. Sign up",
+      "step1Body": "Tell us your country and the crops you grow.",
+      "step2Title": "2. Ask the AI",
+      "step2Body": "Get diagnosis, profit plans, and a personalized calendar.",
+      "step3Title": "3. Grow & sell",
+      "step3Body": "Follow the plan and list your harvest in the marketplace."
+    },
+    "footerRights": "All rights reserved."
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Log in to your FarmHelper account.",
+    "signupTitle": "Create your account",
+    "signupSubtitle": "Start growing smarter in two minutes.",
+    "fullName": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "country": "Country",
+    "countryPlaceholder": "Select your country",
+    "preferredLanguage": "Preferred language",
+    "submitLogin": "Log in",
+    "submitSignup": "Create account",
+    "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?",
+    "loggingIn": "Logging in…",
+    "signingUp": "Creating account…",
+    "errors": {
+      "emailInvalid": "Enter a valid email address.",
+      "passwordShort": "Password must be at least 8 characters.",
+      "nameRequired": "Please enter your full name.",
+      "countryRequired": "Please select your country.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}",
+    "subtitle": "This is your FarmHelper dashboard. We're just getting started — more features will appear here soon.",
+    "placeholderCard": "Your plots, tasks, AI insights and Krishi Score will appear here."
+  },
+  "common": {
+    "loading": "Loading…"
+  }
+}
