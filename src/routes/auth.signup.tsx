@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES } from "@/lib/countries";
+import authBg from "@/assets/auth-bg.jpg.asset.json";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
