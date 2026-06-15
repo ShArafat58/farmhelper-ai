@@ -172,7 +172,7 @@ function PostCard({ post }: { post: Post }) {
                 mut.mutate({ data: { post_id: post.id, body: reply.trim() } });
               }}
             >
-              <Input value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Write a reply" maxLength={2000} />
+              <Input value={reply} onChange={(e) => setReply(e.target.value)} placeholder={t("community.replyPlaceholder")} maxLength={2000} />
               <Button type="submit" size="icon" disabled={mut.isPending}><Send className="h-4 w-4" /></Button>
             </form>
           </div>
