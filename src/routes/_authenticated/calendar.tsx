@@ -74,14 +74,60 @@ function CalendarPage() {
             <h1 className="text-3xl font-bold tracking-tight">Calendar</h1>
             <p className="mt-1 text-sm text-muted-foreground">Track farm tasks by due date.</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> Add task</Button></DialogTrigger>
-            <TaskDialog
-              plots={plotsQ.data ?? []}
-              submitting={create.isPending}
-              onSubmit={(v) => create.mutate({ data: v })}
-            />
-          </Dialog>
+          <div className="flex gap-2">
+            <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline"><Sparkles className="mr-1 h-4 w-4" /> Generate plan with AI</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>AI calendar plan</DialogTitle></DialogHeader>
+                <form
+                  className="space-y-3"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!aiCrop.trim()) return toast.error("Crop name is required");
+                    aiMut.mutate({
+                      data: {
+                        crop_name: aiCrop.trim(),
+                        plot_id: aiPlot === "none" ? null : aiPlot,
+                        country: profile?.country ?? null,
+                        region: profile?.region ?? null,
+                        currency: profile?.currency ?? "USD",
+                        language: profile?.country === "BD" && profile?.preferred_language === "bn" ? "bn" : "en",
+                      },
+                    });
+                  }}
+                >
+                  <div className="grid gap-2"><Label>Crop</Label>
+                    <Input value={aiCrop} onChange={(e) => setAiCrop(e.target.value)} placeholder="e.g. Tomato" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Plot (optional)</Label>
+                    <Select value={aiPlot} onValueChange={setAiPlot}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {(plotsQ.data ?? []).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={aiMut.isPending}>
+                      {aiMut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Generating…</> : "Generate"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> Add task</Button></DialogTrigger>
+              <TaskDialog
+                plots={plotsQ.data ?? []}
+                submitting={create.isPending}
+                onSubmit={(v) => create.mutate({ data: v })}
+              />
+            </Dialog>
+          </div>
         </div>
 
         <div className="mt-6 space-y-3">
