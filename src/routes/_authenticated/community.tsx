@@ -28,6 +28,7 @@ type Post = {
 };
 
 function CommunityPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { profile } = useAuth();
   const listFn = useServerFn(listPosts);
@@ -42,14 +43,14 @@ function CommunityPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["posts"] });
       setTitle(""); setBody("");
-      toast.success("Question posted");
+      toast.success(t("community.posted"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (title.trim().length < 3 || body.trim().length < 3) return toast.error("Add a title and question.");
+    if (title.trim().length < 3 || body.trim().length < 3) return toast.error(t("community.needContent"));
     mut.mutate({
       data: {
         title: title.trim(),
