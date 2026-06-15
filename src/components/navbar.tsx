@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import type { SupportedLang } from "@/i18n";
 
-const NAV_KEYS: Array<{ key: keyof typeof import("@/i18n/en.json")["nav"]; to: string }> = [
+const NAV_LINKS = [
   { key: "home", to: "/" },
   { key: "dashboard", to: "/dashboard" },
   { key: "cropDoctor", to: "/crop-doctor" },
@@ -23,7 +23,7 @@ const NAV_KEYS: Array<{ key: keyof typeof import("@/i18n/en.json")["nav"]; to: s
   { key: "calendar", to: "/calendar" },
   { key: "market", to: "/market" },
   { key: "community", to: "/community" },
-];
+] as const;
 
 export function Navbar() {
   const { t, i18n } = useTranslation();
