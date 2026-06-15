@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import greenTexture from "@/assets/green-texture.jpg.asset.json";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -15,7 +16,13 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthedLayout() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e8f5e9] via-[#f1f8e9] to-[#f9fbe7]">
+    <div className="relative min-h-screen">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${greenTexture.url})` }}
+      />
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-white/15" />
       <Outlet />
     </div>
   );
