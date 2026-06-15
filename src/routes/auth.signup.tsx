@@ -210,9 +210,48 @@ function SignupPage() {
               </div>
             )}
 
+            <div className="rounded-lg border border-white/25 bg-white/10 p-3 space-y-3">
+              <div>
+                <p className="text-sm font-medium text-white">{t("securityQuestions.sectionTitle")}</p>
+                <p className="text-xs text-white/75">{t("securityQuestions.sectionHelp")}</p>
+              </div>
+              {[
+                { q: q1, setQ: setQ1, a: a1, setA: setA1, qLabel: "question1", aLabel: "answer1", other: q2 },
+                { q: q2, setQ: setQ2, a: a2, setA: setA2, qLabel: "question2", aLabel: "answer2", other: q1 },
+              ].map((row, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div>
+                    <Label className="text-white">{t(`securityQuestions.${row.qLabel}`)}</Label>
+                    <Select value={row.q} onValueChange={row.setQ}>
+                      <SelectTrigger className="border-white/30 bg-white/20 text-white focus:ring-white/60">
+                        <SelectValue placeholder={t("securityQuestions.pickQuestion")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SECURITY_QUESTION_KEYS.map((k) => (
+                          <SelectItem key={k} value={k} disabled={k === row.other}>
+                            {t(`securityQuestions.items.${k}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-white">{t(`securityQuestions.${row.aLabel}`)}</Label>
+                    <Input
+                      value={row.a}
+                      onChange={(e) => row.setA(e.target.value)}
+                      className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
+                    />
+                  </div>
+                </div>
+              ))}
+              {errors.sq && <p className="text-xs text-red-200">{errors.sq}</p>}
+            </div>
+
             {errors.form && (
               <p className="text-sm text-red-200">{errors.form}</p>
             )}
+
 
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? t("auth.signingUp") : t("auth.submitSignup")}
