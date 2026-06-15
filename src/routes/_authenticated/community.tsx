@@ -113,6 +113,7 @@ function CommunityPage() {
 }
 
 function PostCard({ post }: { post: Post }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const repliesFn = useServerFn(listReplies);
   const replyFn = useServerFn(createReply);
