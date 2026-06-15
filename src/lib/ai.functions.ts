@@ -19,7 +19,7 @@ export const cropDoctor = createServerFn({ method: "POST" })
       .object({
         crop_name: z.string().trim().min(1).max(80),
         symptoms: z.string().trim().min(3).max(2000),
-        image_path: z.string().trim().max(300).nullable().optional(),
+        image_path: z.string().trim().min(1).max(300),
       })
       .merge(regionCtx)
       .parse(d),
