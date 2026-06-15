@@ -187,6 +187,7 @@ type Listing = {
 };
 
 function SellTab() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { profile, user } = useAuth();
   const listFn = useServerFn(listActiveListings);
@@ -209,34 +210,34 @@ function SellTab() {
 
   const create = useMutation({
     mutationFn: createFn,
-    onSuccess: () => { invalidate(); toast.success("Listing posted"); setOpen(false); },
+    onSuccess: () => { invalidate(); toast.success(t("market.posted")); setOpen(false); },
     onError: (e: Error) => toast.error(e.message),
   });
   const update = useMutation({
     mutationFn: updateFn,
-    onSuccess: () => { invalidate(); toast.success("Listing updated"); setOpen(false); setEditing(null); },
+    onSuccess: () => { invalidate(); toast.success(t("market.updated")); setOpen(false); setEditing(null); },
     onError: (e: Error) => toast.error(e.message),
   });
   const del = useMutation({
     mutationFn: delFn,
-    onSuccess: () => { invalidate(); toast.success("Listing deleted"); },
+    onSuccess: () => { invalidate(); toast.success(t("market.deleted")); },
     onError: (e: Error) => toast.error(e.message),
   });
   const sold = useMutation({
     mutationFn: soldFn,
-    onSuccess: () => { invalidate(); toast.success("Marked sold"); },
+    onSuccess: () => { invalidate(); toast.success(t("market.markedSold")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Active listings</h2>
-          <p className="text-xs text-muted-foreground">Sell direct. Contact details are revealed on request.</p>
+          <h2 className="text-lg font-semibold">{t("market.activeListings")}</h2>
+          <p className="text-xs text-muted-foreground">{t("market.activeSubtitle")}</p>
         </div>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-          <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> New listing</Button></DialogTrigger>
+          <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> {t("market.newListing")}</Button></DialogTrigger>
           <ListingDialog
             initial={editing}
             defaults={{ country: profile?.country ?? "", region: profile?.region ?? "", currency: profile?.currency ?? "USD" }}
@@ -254,20 +255,20 @@ function SellTab() {
         {all.isLoading && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-44" />)}
         {all.isError && (
           <div className="col-span-full rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
-            <p className="text-sm text-destructive">Could not load listings.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => all.refetch()}>Retry</Button>
+            <p className="text-sm text-destructive">{t("market.loadErrorListings")}</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => all.refetch()}>{t("common.retry")}</Button>
           </div>
         )}
         {all.data && all.data.length === 0 && (
           <div className="col-span-full rounded-lg border border-dashed p-10 text-center">
             <Store className="mx-auto h-10 w-10 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">No active listings yet — be the first to post.</p>
+            <p className="mt-3 text-sm text-muted-foreground">{t("market.noListings")}</p>
           </div>
         )}
         {(all.data as Listing[] | undefined)?.map((l) => (
           <ListingCard key={l.id} listing={l} isOwner={l.user_id === user?.id}
             onEdit={() => { setEditing(l); setOpen(true); }}
-            onDelete={() => { if (confirm("Delete this listing?")) del.mutate({ data: { id: l.id } }); }}
+            onDelete={() => { if (confirm(t("common.confirmDelete"))) del.mutate({ data: { id: l.id } }); }}
             onSold={() => sold.mutate({ data: { id: l.id } })}
           />
         ))}
@@ -275,7 +276,7 @@ function SellTab() {
 
       {mine.data && mine.data.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-lg font-semibold">My listings</h2>
+          <h2 className="text-lg font-semibold">{t("market.myListings")}</h2>
           <div className="mt-3 grid gap-2">
             {(mine.data as Listing[]).map((l) => (
               <Card key={l.id}>
