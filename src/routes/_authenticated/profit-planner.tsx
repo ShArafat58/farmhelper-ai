@@ -81,7 +81,7 @@ function ProfitPage() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const a = Number(area);
-    if (!Number.isFinite(a) || a <= 0) return toast.error("Area must be > 0");
+    if (!Number.isFinite(a) || a <= 0) return toast.error(t("profit.areaPositive"));
     mut.mutate({
       data: {
         area: a,
