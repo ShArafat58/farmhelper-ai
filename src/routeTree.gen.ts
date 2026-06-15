@@ -17,6 +17,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfitPlannerRouteImport } from './routes/_authenticated/profit-planner'
 import { Route as AuthenticatedMarketRouteImport } from './routes/_authenticated/market'
+import { Route as AuthenticatedFarmRouteImport } from './routes/_authenticated/farm'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCropDoctorRouteImport } from './routes/_authenticated/crop-doctor'
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated/community'
@@ -63,6 +64,11 @@ const AuthenticatedMarketRoute = AuthenticatedMarketRouteImport.update({
   path: '/market',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFarmRoute = AuthenticatedFarmRouteImport.update({
+  id: '/farm',
+  path: '/farm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof AuthenticatedCommunityRoute
   '/crop-doctor': typeof AuthenticatedCropDoctorRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/farm': typeof AuthenticatedFarmRoute
   '/market': typeof AuthenticatedMarketRoute
   '/profit-planner': typeof AuthenticatedProfitPlannerRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/community': typeof AuthenticatedCommunityRoute
   '/crop-doctor': typeof AuthenticatedCropDoctorRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/farm': typeof AuthenticatedFarmRoute
   '/market': typeof AuthenticatedMarketRoute
   '/profit-planner': typeof AuthenticatedProfitPlannerRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
   '/_authenticated/crop-doctor': typeof AuthenticatedCropDoctorRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/farm': typeof AuthenticatedFarmRoute
   '/_authenticated/market': typeof AuthenticatedMarketRoute
   '/_authenticated/profit-planner': typeof AuthenticatedProfitPlannerRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/crop-doctor'
     | '/dashboard'
+    | '/farm'
     | '/market'
     | '/profit-planner'
     | '/settings'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/crop-doctor'
     | '/dashboard'
+    | '/farm'
     | '/market'
     | '/profit-planner'
     | '/settings'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/_authenticated/community'
     | '/_authenticated/crop-doctor'
     | '/_authenticated/dashboard'
+    | '/_authenticated/farm'
     | '/_authenticated/market'
     | '/_authenticated/profit-planner'
     | '/_authenticated/settings'
@@ -243,6 +255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/farm': {
+      id: '/_authenticated/farm'
+      path: '/farm'
+      fullPath: '/farm'
+      preLoaderRoute: typeof AuthenticatedFarmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -287,6 +306,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCommunityRoute: typeof AuthenticatedCommunityRoute
   AuthenticatedCropDoctorRoute: typeof AuthenticatedCropDoctorRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFarmRoute: typeof AuthenticatedFarmRoute
   AuthenticatedMarketRoute: typeof AuthenticatedMarketRoute
   AuthenticatedProfitPlannerRoute: typeof AuthenticatedProfitPlannerRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -298,6 +318,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCommunityRoute: AuthenticatedCommunityRoute,
   AuthenticatedCropDoctorRoute: AuthenticatedCropDoctorRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFarmRoute: AuthenticatedFarmRoute,
   AuthenticatedMarketRoute: AuthenticatedMarketRoute,
   AuthenticatedProfitPlannerRoute: AuthenticatedProfitPlannerRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
