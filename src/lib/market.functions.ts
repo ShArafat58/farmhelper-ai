@@ -148,15 +148,21 @@ export const revealContact = createServerFn({ method: "POST" })
 
 export const reportListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ listing_id: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({
+      listing_id: z.string().uuid(),
+      reason: z.string().trim().max(500).optional().nullable(),
+    }).parse(d),
+  )
   .handler(async ({ data, context }) => {
-    // Soft-flag: hide pending admin review by marking status='hidden' is too harsh.
-    // Use moderated_at/moderated_by as a "reported" signal for admin moderation queue.
     const { error } = await context.supabase
-      .from("market_listings")
-      .update({ moderated_at: new Date().toISOString(), moderated_by: context.userId })
-      .eq("id", data.listing_id);
-    if (error) throw new Error(error.message);
+      .from("listing_reports")
+      .insert({
+        listing_id: data.listing_id,
+        reporter_id: context.userId,
+        reason: data.reason ?? null,
+      });
+    if (error && !error.message.includes("duplicate")) throw new Error(error.message);
     return { ok: true };
   });
 
