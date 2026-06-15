@@ -75,8 +75,24 @@
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",
-    "subtitle": "This is your FarmHelper dashboard. We're just getting started — more features will appear here soon.",
-    "placeholderCard": "Your plots, tasks, AI insights and Krishi Score will appear here."
+    "subtitle": "Your farm at a glance.",
+    "krishiScore": "Krishi Score",
+    "badges": "Badges",
+    "noBadges": "Earn badges by adding plots, diagnosing crops, and selling produce.",
+    "upcoming": "Upcoming tasks",
+    "noUpcoming": "No upcoming tasks. Add some from the Calendar.",
+    "quickLinks": "Quick links",
+    "stats": {
+      "plots": "Plots",
+      "tasksPending": "Pending tasks",
+      "listings": "Active listings",
+      "diagnoses": "Diagnoses"
+    },
+    "charts": {
+      "activity": "Activity (last 14 days)",
+      "tasks": "Tasks created",
+      "done": "Completed"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -102,11 +118,28 @@
       "users": "Users",
       "listings": "Listings",
       "posts": "Community posts",
-      "diagnoses": "Diagnoses"
+      "diagnoses": "Diagnoses",
+      "openReports": "Open reports"
+    },
+    "queue": {
+      "title": "Moderation queue",
+      "empty": "No reports right now. All clear!",
+      "reason": "Reason",
+      "reportedBy": "Reported by",
+      "hide": "Hide listing",
+      "resolve": "Resolve",
+      "dismiss": "Dismiss",
+      "deletedListing": "(listing deleted)"
+    },
+    "actions": {
+      "hidden": "Listing hidden.",
+      "resolved": "Report updated."
     },
     "moderationPlaceholder": "Moderation queue will appear here."
   },
   "common": {
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "loadError": "Could not load. Please try again.",
+    "retry": "Retry"
   }
 }
