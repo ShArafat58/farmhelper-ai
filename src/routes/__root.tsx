@@ -11,6 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import "../i18n";
+import { AuthProvider } from "../lib/auth-context";
+import { Toaster } from "../components/ui/sonner";
+
 
 function NotFoundComponent() {
   return (
@@ -77,15 +81,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "FarmHelper — Your Smart Farming Companion" },
+      {
+        name: "description",
+        content:
+          "FarmHelper is the AI co-pilot for smallholder farmers: diagnose crop problems, plan profitable crops, get a smart calendar, and sell direct.",
+      },
+      { name: "author", content: "FarmHelper" },
+      { property: "og:title", content: "FarmHelper — Your Smart Farming Companion" },
+      {
+        property: "og:description",
+        content:
+          "Diagnose, plan, and sell smarter. The AI farming co-pilot for smallholders worldwide.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
+
+
     links: [
       {
         rel: "stylesheet",
@@ -118,8 +131,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AuthProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster richColors position="top-center" />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
