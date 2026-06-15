@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Sprout } from "lucide-react";
 
@@ -31,6 +32,7 @@ type Plot = {
 };
 
 function FarmPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const qc = useQueryClient();
   const listFn = useServerFn(listPlots);
@@ -47,7 +49,7 @@ function FarmPage() {
     mutationFn: createFn,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plots"] });
-      toast.success("Plot added");
+      toast.success(t("farm.toasts.added"));
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -56,7 +58,7 @@ function FarmPage() {
     mutationFn: updateFn,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plots"] });
-      toast.success("Plot updated");
+      toast.success(t("farm.toasts.updated"));
       setOpen(false);
       setEditing(null);
     },
@@ -66,7 +68,7 @@ function FarmPage() {
     mutationFn: deleteFn,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plots"] });
-      toast.success("Plot deleted");
+      toast.success(t("farm.toasts.deleted"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -74,14 +76,14 @@ function FarmPage() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">My Farm</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Manage your plots and what's growing on them.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("farm.title")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("farm.subtitle")}</p>
           </div>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button><Plus className="mr-1 h-4 w-4" /> Add plot</Button>
+              <Button><Plus className="mr-1 h-4 w-4" /> {t("farm.addPlot")}</Button>
             </DialogTrigger>
             <PlotDialog
               initial={editing}
@@ -104,14 +106,14 @@ function FarmPage() {
           )}
           {q.isError && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
-              <p className="text-sm text-destructive">Could not load your plots.</p>
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>Retry</Button>
+              <p className="text-sm text-destructive">{t("farm.loadError")}</p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>{t("common.retry")}</Button>
             </div>
           )}
           {q.data && q.data.length === 0 && (
             <div className="rounded-lg border border-dashed p-10 text-center">
               <Sprout className="mx-auto h-10 w-10 text-muted-foreground" />
-              <p className="mt-3 text-sm text-muted-foreground">No plots yet — add your first.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("farm.noPlots")}</p>
             </div>
           )}
           {q.data && q.data.length > 0 && (
@@ -128,19 +130,19 @@ function FarmPage() {
                     <div className="text-sm text-muted-foreground">
                       {p.crop_name ?? "—"} · {p.region ?? p.country ?? "—"}
                     </div>
-                    {p.planted_at && <div className="mt-1 text-xs text-muted-foreground">Planted {p.planted_at}</div>}
+                    {p.planted_at && <div className="mt-1 text-xs text-muted-foreground">{t("farm.plantedShort", { date: p.planted_at })}</div>}
                     <div className="mt-3 flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => { setEditing(p as Plot); setOpen(true); }}>
-                        <Pencil className="mr-1 h-3 w-3" /> Edit
+                        <Pencil className="mr-1 h-3 w-3" /> {t("common.edit")}
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          if (confirm("Delete this plot?")) del.mutate({ data: { id: p.id } });
+                          if (confirm(t("common.confirmDelete"))) del.mutate({ data: { id: p.id } });
                         }}
                       >
-                        <Trash2 className="mr-1 h-3 w-3" /> Delete
+                        <Trash2 className="mr-1 h-3 w-3" /> {t("common.delete")}
                       </Button>
                     </div>
                   </CardContent>
@@ -170,6 +172,7 @@ function PlotDialog({
     country: string | null; region: string | null; planted_at: string | null;
   }) => void;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initial?.name ?? "");
   const [area, setArea] = useState(initial?.area?.toString() ?? "");
   const [crop, setCrop] = useState(initial?.crop_name ?? "");
@@ -182,9 +185,9 @@ function PlotDialog({
     e.preventDefault();
     setErr(null);
     const n = Number(area);
-    if (!name.trim()) return setErr("Name is required.");
-    if (!Number.isFinite(n) || n <= 0) return setErr("Area must be greater than zero.");
-    if (!crop.trim()) return setErr("Crop is required.");
+    if (!name.trim()) return setErr(t("farm.errors.nameRequired"));
+    if (!Number.isFinite(n) || n <= 0) return setErr(t("farm.errors.areaPositive"));
+    if (!crop.trim()) return setErr(t("farm.errors.cropRequired"));
     onSubmit({
       name: name.trim(),
       area: n,
@@ -198,22 +201,22 @@ function PlotDialog({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{initial ? "Edit plot" : "Add plot"}</DialogTitle>
+        <DialogTitle>{initial ? t("farm.editPlot") : t("farm.addPlot")}</DialogTitle>
       </DialogHeader>
       <form className="space-y-3" onSubmit={submit}>
-        <div className="grid gap-2"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></div>
+        <div className="grid gap-2"><Label>{t("farm.name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Area</Label><Input type="number" step="0.01" value={area} onChange={(e) => setArea(e.target.value)} /></div>
-          <div className="grid gap-2"><Label>Crop</Label><Input value={crop} onChange={(e) => setCrop(e.target.value)} maxLength={80} /></div>
+          <div className="grid gap-2"><Label>{t("farm.area")}</Label><Input type="number" step="0.01" value={area} onChange={(e) => setArea(e.target.value)} /></div>
+          <div className="grid gap-2"><Label>{t("farm.crop")}</Label><Input value={crop} onChange={(e) => setCrop(e.target.value)} maxLength={80} /></div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Country (ISO-2)</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={2} /></div>
-          <div className="grid gap-2"><Label>Region</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={80} /></div>
+          <div className="grid gap-2"><Label>{t("farm.country")}</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={2} /></div>
+          <div className="grid gap-2"><Label>{t("farm.region")}</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={80} /></div>
         </div>
-        <div className="grid gap-2"><Label>Planted on</Label><Input type="date" value={planted} onChange={(e) => setPlanted(e.target.value)} /></div>
+        <div className="grid gap-2"><Label>{t("farm.plantedOn")}</Label><Input type="date" value={planted} onChange={(e) => setPlanted(e.target.value)} /></div>
         {err && <p className="text-sm text-destructive">{err}</p>}
         <DialogFooter>
-          <Button type="submit" disabled={submitting}>{submitting ? "Saving…" : "Save"}</Button>
+          <Button type="submit" disabled={submitting}>{submitting ? t("common.saving") : t("common.save")}</Button>
         </DialogFooter>
       </form>
     </DialogContent>
