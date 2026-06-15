@@ -159,11 +159,8 @@ export const resetPasswordWithAnswers = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-async function bumpAttempts(
-  admin: Awaited<ReturnType<typeof import("@/integrations/supabase/client.server")>>["supabaseAdmin"],
-  email: string,
-  current: number,
-) {
+type AdminClient = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
+async function bumpAttempts(admin: AdminClient, email: string, current: number) {
   const next = current + 1;
   const locked_until =
     next >= MAX_ATTEMPTS ? new Date(Date.now() + LOCK_MINUTES * 60_000).toISOString() : null;
