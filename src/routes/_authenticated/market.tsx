@@ -110,6 +110,7 @@ function PricesTab() {
 type PriceRow = { id: string; crop_name: string; price: number; currency: string; unit: string; as_of: string; region: string | null };
 
 function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; trend: number }) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const adviseFn = useServerFn(sellAdvisor);
   const [open, setOpen] = useState(false);
@@ -136,7 +137,7 @@ function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; tr
       setAdvice(r.advice);
     } catch (e) {
       toast.error((e as Error).message);
-      setAdvice("AI is unavailable. Please retry shortly.");
+      setAdvice(t("market.aiUnavailable"));
     } finally {
       setLoading(false);
     }
@@ -147,7 +148,7 @@ function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; tr
       <CardContent className="flex items-center justify-between gap-3 p-4">
         <div className="min-w-0">
           <div className="font-medium">{crop}</div>
-          <div className="text-xs text-muted-foreground">{latest.region ?? "—"} · as of {latest.as_of}</div>
+          <div className="text-xs text-muted-foreground">{latest.region ?? "—"} · {t("market.asOf", { date: latest.as_of })}</div>
         </div>
         <div className="text-right">
           <div className="font-semibold">{latest.price} {latest.currency} <span className="text-xs text-muted-foreground">/ {latest.unit}</span></div>
@@ -160,13 +161,13 @@ function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; tr
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" onClick={ask}>
-              <Sparkles className="mr-1 h-3 w-3" /> Ask AI
+              <Sparkles className="mr-1 h-3 w-3" /> {t("market.askAi")}
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Sell or hold — {crop}?</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t("market.sellOrHold", { crop })}</DialogTitle></DialogHeader>
             {loading ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Thinking…</div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t("market.thinking")}</div>
             ) : (
               <p className="whitespace-pre-wrap text-sm">{advice}</p>
             )}
