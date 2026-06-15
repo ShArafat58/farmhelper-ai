@@ -17,6 +17,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES } from "@/lib/countries";
 import authBg from "@/assets/auth-bg.jpg.asset.json";
+import { SECURITY_QUESTION_KEYS } from "@/lib/security-questions";
+import { setMySecurityAnswers } from "@/lib/security.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
