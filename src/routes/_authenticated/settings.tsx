@@ -33,11 +33,21 @@ function SettingsPage() {
   const { t } = useTranslation();
   const { profile, refreshProfile, loading } = useAuth();
   const navigate = useNavigate();
+  const fetchKeys = useServerFn(getMySecurityQuestionKeys);
+  const saveAnswers = useServerFn(setMySecurityAnswers);
   const [region, setRegion] = useState("");
   const [areaUnit, setAreaUnit] = useState("acre");
   const [currency, setCurrency] = useState("USD");
   const [lang, setLang] = useState<"en" | "bn">("en");
   const [saving, setSaving] = useState(false);
+
+  const [existingCount, setExistingCount] = useState<number>(0);
+  const [q1, setQ1] = useState("");
+  const [q2, setQ2] = useState("");
+  const [a1, setA1] = useState("");
+  const [a2, setA2] = useState("");
+  const [sqSaving, setSqSaving] = useState(false);
+  const [sqError, setSqError] = useState<string | undefined>();
 
   useEffect(() => {
     if (profile) {
@@ -47,6 +57,53 @@ function SettingsPage() {
       setLang((profile.preferred_language as "en" | "bn") ?? "en");
     }
   }, [profile]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchKeys()
+      .then((r) => {
+        if (cancelled) return;
+        setExistingCount(r.keys?.length ?? 0);
+        if (r.keys?.[0]) setQ1(r.keys[0]);
+        if (r.keys?.[1]) setQ2(r.keys[1]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchKeys]);
+
+  async function handleSaveSecurity() {
+    setSqError(undefined);
+    if (!q1 || !q2 || q1 === q2) {
+      setSqError(t("securityQuestions.mustDiffer"));
+      return;
+    }
+    if (!a1.trim() || !a2.trim()) {
+      setSqError(t("securityQuestions.answerRequired"));
+      return;
+    }
+    setSqSaving(true);
+    try {
+      await saveAnswers({
+        data: {
+          pairs: [
+            { questionKey: q1, answer: a1 },
+            { questionKey: q2, answer: a2 },
+          ],
+        },
+      });
+      toast.success(t("securityQuestions.saved"));
+      setA1("");
+      setA2("");
+      setExistingCount(2);
+    } catch {
+      toast.error(t("securityQuestions.saveError"));
+    } finally {
+      setSqSaving(false);
+    }
+  }
+
 
   const isBD = profile?.country === "BD";
 
