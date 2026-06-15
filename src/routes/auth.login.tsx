@@ -64,7 +64,7 @@ function LoginPage() {
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
-              <Label htmlFor="email">{t("auth.email")}</Label>
+              <Label htmlFor="email" className="text-white">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -72,14 +72,15 @@ function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 aria-invalid={!!errors.email}
+                className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+                <p className="mt-1 text-xs text-red-200">{errors.email}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="password">{t("auth.password")}</Label>
+              <Label htmlFor="password" className="text-white">{t("auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -87,14 +88,15 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 aria-invalid={!!errors.password}
+                className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
               />
               {errors.password && (
-                <p className="mt-1 text-xs text-destructive">{errors.password}</p>
+                <p className="mt-1 text-xs text-red-200">{errors.password}</p>
               )}
             </div>
 
             {errors.form && (
-              <p className="text-sm text-destructive">{errors.form}</p>
+              <p className="text-sm text-red-200">{errors.form}</p>
             )}
 
             <Button type="submit" className="w-full" disabled={submitting}>
@@ -102,9 +104,9 @@ function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-sm text-white/80">
             {t("auth.noAccount")}{" "}
-            <Link to="/auth/signup" className="font-medium text-primary hover:underline">
+            <Link to="/auth/signup" className="font-medium text-white underline-offset-2 hover:underline">
               {t("nav.signup")}
             </Link>
           </p>
