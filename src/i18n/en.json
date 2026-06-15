@@ -71,8 +71,37 @@
       "passwordShort": "Password must be at least 8 characters.",
       "nameRequired": "Please enter your full name.",
       "countryRequired": "Please select your country.",
+      "codeRequired": "Enter the 6-digit code from your email.",
+      "codeInvalid": "Code must be 6 digits.",
+      "passwordMismatch": "Passwords do not match.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "forgotPassword": {
+    "linkLabel": "Forgot password?",
+    "title": "Reset your password",
+    "subtitle": "Enter your email and we'll send you a 6-digit code.",
+    "email": "Email",
+    "submit": "Send reset code",
+    "sending": "Sending…",
+    "successTitle": "Check your email",
+    "successBody": "If an account exists for this email, a reset code has been sent.",
+    "continueToReset": "Enter reset code",
+    "backToLogin": "Back to log in"
+  },
+  "resetPassword": {
+    "title": "Set a new password",
+    "subtitle": "Enter the 6-digit code from your email and choose a new password.",
+    "email": "Email",
+    "code": "Reset code",
+    "codePlaceholder": "123456",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "submit": "Update password",
+    "submitting": "Updating…",
+    "success": "Password updated. Please log in.",
+    "invalidCode": "Invalid or expired code. Please request a new one.",
+    "backToLogin": "Back to log in"
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",

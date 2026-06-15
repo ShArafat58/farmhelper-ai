@@ -93,6 +93,11 @@ function LoginPage() {
               {errors.password && (
                 <p className="mt-1 text-xs text-red-200">{errors.password}</p>
               )}
+              <div className="mt-1 text-right">
+                <Link to="/forgot-password" className="text-xs text-white/90 underline-offset-2 hover:underline">
+                  {t("forgotPassword.linkLabel")}
+                </Link>
+              </div>
             </div>
 
             {errors.form && (
