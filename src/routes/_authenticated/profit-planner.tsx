@@ -37,6 +37,7 @@ type Crop = {
 };
 
 function ProfitPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const fn = useServerFn(profitPlanner);
 
@@ -55,10 +56,10 @@ function ProfitPage() {
     onSuccess: (r) => {
       setResult({ crops: r.crops, currency: r.currency, season: r.season });
       setFallback(null);
-      toast.success("Plan ready");
+      toast.success(t("profit.ready"));
     },
     onError: (e: Error) => {
-      setFallback("We couldn't generate a plan right now. Please retry in a moment.");
+      setFallback(t("profit.fallback"));
       toast.error(e.message);
     },
   });
