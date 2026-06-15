@@ -30,16 +30,17 @@ export const Route = createFileRoute("/_authenticated/market")({
 });
 
 function MarketPage() {
+  const { t } = useTranslation();
   return (
     <SiteLayout>
       <section className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight">Market</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Live prices and direct-to-buyer classifieds.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("market.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("market.subtitle")}</p>
 
         <Tabs defaultValue="prices" className="mt-6">
           <TabsList>
-            <TabsTrigger value="prices"><LineChart className="mr-1 h-4 w-4" /> Prices</TabsTrigger>
-            <TabsTrigger value="sell"><Store className="mr-1 h-4 w-4" /> Sell</TabsTrigger>
+            <TabsTrigger value="prices"><LineChart className="mr-1 h-4 w-4" /> {t("market.tabs.prices")}</TabsTrigger>
+            <TabsTrigger value="sell"><Store className="mr-1 h-4 w-4" /> {t("market.tabs.sell")}</TabsTrigger>
           </TabsList>
           <TabsContent value="prices" className="mt-4"><PricesTab /></TabsContent>
           <TabsContent value="sell" className="mt-4"><SellTab /></TabsContent>
