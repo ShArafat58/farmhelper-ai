@@ -53,6 +53,7 @@ function MarketPage() {
 /* ---------------- Prices ---------------- */
 
 function PricesTab() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const fn = useServerFn(listPricesForRegion);
   const q = useQuery({
@@ -61,7 +62,6 @@ function PricesTab() {
     queryFn: () => fn({ data: { country: profile?.country ?? null, region: profile?.region ?? null } }),
   });
 
-  // Build crop→latest/previous to compute trend
   type Row = { id: string; crop_name: string; price: number; currency: string; unit: string; as_of: string; region: string | null };
   const rows = (q.data ?? []) as Row[];
   const byCrop = new Map<string, Row[]>();
@@ -80,19 +80,22 @@ function PricesTab() {
   return (
     <div>
       <p className="text-xs text-muted-foreground">
-        Showing prices for {profile?.region ? `${profile.region}, ` : ""}{profile?.country ?? "your region"}.
+        {t("market.showingFor", {
+          region: profile?.region ? `${profile.region}, ` : "",
+          country: profile?.country ?? t("settings.region"),
+        })}
       </p>
       <div className="mt-3 space-y-2">
         {q.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-14" />)}
         {q.isError && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
-            <p className="text-sm text-destructive">Could not load prices.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>Retry</Button>
+            <p className="text-sm text-destructive">{t("market.loadErrorPrices")}</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>{t("common.retry")}</Button>
           </div>
         )}
         {q.data && grouped.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No prices available yet for your region. Set your country/region in Settings to see relevant data.
+            {t("market.noPrices")}
           </div>
         )}
         {grouped.map(({ crop, latest, trend }) => (
