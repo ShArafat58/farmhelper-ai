@@ -5,6 +5,7 @@
   },
   "nav": {
     "home": "Home",
+    "overview": "Overview",
     "dashboard": "Dashboard",
     "farm": "My Farm",
     "cropDoctor": "Crop Doctor",
