@@ -96,6 +96,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "FarmHelper — Your Smart Farming Companion" },
+      { name: "description", content: "AI-powered farming companion for crop diagnosis, profit planning, smart calendars, and a direct farmer-to-buyer marketplace — region & season aware, bilingual (" },
+      { property: "og:description", content: "AI-powered farming companion for crop diagnosis, profit planning, smart calendars, and a direct farmer-to-buyer marketplace — region & season aware, bilingual (" },
+      { name: "twitter:description", content: "AI-powered farming companion for crop diagnosis, profit planning, smart calendars, and a direct farmer-to-buyer marketplace — region & season aware, bilingual (" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/188c8340-ba16-41fe-a80a-39a6379115f2/id-preview-86e0da71--5d42e44f-231c-4a9c-8d11-e6e0153f4586.lovable.app-1781554435108.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/188c8340-ba16-41fe-a80a-39a6379115f2/id-preview-86e0da71--5d42e44f-231c-4a9c-8d11-e6e0153f4586.lovable.app-1781554435108.png" },
     ],
 
 
