@@ -42,7 +42,7 @@ export const listActiveListings = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("market_listings")
-      .select("*")
+      .select("id, user_id, country, region, crop_name, qty, unit, price, currency, image_path, status, moderated_by, moderated_at, created_at")
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(100);
@@ -53,7 +53,8 @@ export const listActiveListings = createServerFn({ method: "GET" })
 export const listMyListings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("market_listings")
       .select("*")
       .eq("user_id", context.userId)
@@ -61,6 +62,9 @@ export const listMyListings = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+
+
+
 
 export const createListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -136,7 +140,8 @@ export const revealContact = createServerFn({ method: "POST" })
       .insert({ user_id: context.userId, listing_id: data.listing_id });
     if (rErr) throw new Error(rErr.message);
 
-    const { data: listing, error: lErr } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: listing, error: lErr } = await supabaseAdmin
       .from("market_listings")
       .select("contact_phone")
       .eq("id", data.listing_id)
