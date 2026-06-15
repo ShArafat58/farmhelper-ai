@@ -37,17 +37,15 @@ export const cropDoctor = createServerFn({ method: "POST" })
     const lang = data.language ?? effectiveLanguage(data.country ?? null, null);
     const langInstr = lang === "bn" ? "Bangla (Bengali)" : "English";
 
-    const system = `You are an expert agronomist for smallholder farmers. Respond ONLY with valid JSON matching:
+    const system = `You are an expert agronomist for smallholder farmers. The user has uploaded a photo of a sick/affected crop. Base your diagnosis PRIMARILY on the visual evidence in the image. Use the typed symptoms only as supporting context. Respond ONLY with valid JSON matching:
 {"disease_name":string,"cause":string,"organic_treatment":string,"chemical_treatment":string,"dosage":string,"prevention":string,"confidence":number}
-Write all text fields in ${langInstr}. Confidence is 0..1.`;
+Write all text fields in ${langInstr}. Confidence is 0..1 and must reflect how clearly the image supports the diagnosis.`;
 
-    let imageUrl: string | null = null;
-    if (data.image_path) {
-      const { data: signed } = await context.supabase.storage
-        .from("farmhelper-images")
-        .createSignedUrl(data.image_path, 600);
-      imageUrl = signed?.signedUrl ?? null;
-    }
+    const { data: signed, error: signErr } = await context.supabase.storage
+      .from("farmhelper-images")
+      .createSignedUrl(data.image_path, 600);
+    if (signErr || !signed?.signedUrl) throw new Error("Could not read uploaded image. Please retry.");
+    const imageUrl = signed.signedUrl;
 
     const userContent: Array<
       | { type: "text"; text: string }
@@ -55,10 +53,10 @@ Write all text fields in ${langInstr}. Confidence is 0..1.`;
     > = [
       {
         type: "text",
-        text: `Crop: ${data.crop_name}\nRegion: ${data.region ?? "unknown"}, ${data.country ?? "unknown"}\nSymptoms: ${data.symptoms}`,
+        text: `Crop: ${data.crop_name}\nRegion: ${data.region ?? "unknown"}, ${data.country ?? "unknown"}\nFarmer-reported symptoms: ${data.symptoms}\n\nAnalyze the attached photo and diagnose.`,
       },
+      { type: "image_url", image_url: { url: imageUrl } },
     ];
-    if (imageUrl) userContent.push({ type: "image_url", image_url: { url: imageUrl } });
 
     try {
       const result = await callAiJSON<{
@@ -77,7 +75,7 @@ Write all text fields in ${langInstr}. Confidence is 0..1.`;
           user_id: context.userId,
           crop_name: data.crop_name,
           symptoms: data.symptoms,
-          image_path: data.image_path ?? null,
+          image_path: data.image_path,
           language: lang,
           ai_result: result,
         })
