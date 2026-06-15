@@ -445,6 +445,27 @@ export type Database = {
         }
         Relationships: []
       }
+      password_reset_attempts: {
+        Row: {
+          attempts: number
+          email: string
+          locked_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          email: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          email?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           area_unit: string
@@ -478,6 +499,33 @@ export type Database = {
           krishi_score?: number
           preferred_language?: string
           region?: string | null
+        }
+        Relationships: []
+      }
+      security_answers: {
+        Row: {
+          answer_hash: string
+          created_at: string
+          id: string
+          question_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer_hash: string
+          created_at?: string
+          id?: string
+          question_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer_hash?: string
+          created_at?: string
+          id?: string
+          question_key?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -515,11 +563,26 @@ export type Database = {
         Args: { _delta: number; _user_id: string }
         Returns: undefined
       }
+      get_security_question_keys: {
+        Args: { p_user_id: string }
+        Returns: {
+          question_key: string
+        }[]
+      }
+      get_user_id_by_email: { Args: { p_email: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      set_security_answer: {
+        Args: { p_answer: string; p_question_key: string; p_user_id: string }
+        Returns: undefined
+      }
+      verify_security_answer: {
+        Args: { p_answer: string; p_question_key: string; p_user_id: string }
         Returns: boolean
       }
     }
