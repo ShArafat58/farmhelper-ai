@@ -64,17 +64,7 @@ export const listMyListings = createServerFn({ method: "GET" })
   });
 
 
-export const listMyListings = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("market_listings")
-      .select("*")
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
+
 
 export const createListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
