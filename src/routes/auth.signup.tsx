@@ -88,32 +88,33 @@ function SignupPage() {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-black/25 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/35 to-primary/30" />
       <div className="relative w-full max-w-md">
         <div className="mb-6 flex justify-center">
           <BrandLogo />
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-          <h1 className="text-2xl font-bold text-foreground">{t("auth.signupTitle")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("auth.signupSubtitle")}</p>
+        <div className="rounded-2xl border border-white/25 bg-white/15 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+          <h1 className="text-2xl font-bold text-white drop-shadow">{t("auth.signupTitle")}</h1>
+          <p className="mt-1 text-sm text-white/80">{t("auth.signupSubtitle")}</p>
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
-              <Label htmlFor="fullName">{t("auth.fullName")}</Label>
+              <Label htmlFor="fullName" className="text-white">{t("auth.fullName")}</Label>
               <Input
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 autoComplete="name"
                 aria-invalid={!!errors.fullName}
+                className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
               />
               {errors.fullName && (
-                <p className="mt-1 text-xs text-destructive">{errors.fullName}</p>
+                <p className="mt-1 text-xs text-red-200">{errors.fullName}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="email">{t("auth.email")}</Label>
+              <Label htmlFor="email" className="text-white">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -121,14 +122,15 @@ function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 aria-invalid={!!errors.email}
+                className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+                <p className="mt-1 text-xs text-red-200">{errors.email}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="password">{t("auth.password")}</Label>
+              <Label htmlFor="password" className="text-white">{t("auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -136,16 +138,17 @@ function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 aria-invalid={!!errors.password}
+                className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
               />
               {errors.password && (
-                <p className="mt-1 text-xs text-destructive">{errors.password}</p>
+                <p className="mt-1 text-xs text-red-200">{errors.password}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="country">{t("auth.country")}</Label>
+              <Label htmlFor="country" className="text-white">{t("auth.country")}</Label>
               <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger id="country" aria-invalid={!!errors.country}>
+                <SelectTrigger id="country" aria-invalid={!!errors.country} className="border-white/30 bg-white/20 text-white focus:ring-white/60">
                   <SelectValue placeholder={t("auth.countryPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,18 +160,18 @@ function SignupPage() {
                 </SelectContent>
               </Select>
               {errors.country && (
-                <p className="mt-1 text-xs text-destructive">{errors.country}</p>
+                <p className="mt-1 text-xs text-red-200">{errors.country}</p>
               )}
             </div>
 
             {isBD && (
               <div>
-                <Label htmlFor="language">{t("auth.preferredLanguage")}</Label>
+                <Label htmlFor="language" className="text-white">{t("auth.preferredLanguage")}</Label>
                 <Select
                   value={language}
                   onValueChange={(v) => setLanguage(v as "bn" | "en")}
                 >
-                  <SelectTrigger id="language">
+                  <SelectTrigger id="language" className="border-white/30 bg-white/20 text-white focus:ring-white/60">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -180,7 +183,7 @@ function SignupPage() {
             )}
 
             {errors.form && (
-              <p className="text-sm text-destructive">{errors.form}</p>
+              <p className="text-sm text-red-200">{errors.form}</p>
             )}
 
             <Button type="submit" className="w-full" disabled={submitting}>
@@ -188,9 +191,9 @@ function SignupPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-sm text-white/80">
             {t("auth.haveAccount")}{" "}
-            <Link to="/auth/login" className="font-medium text-primary hover:underline">
+            <Link to="/auth/login" className="font-medium text-white underline-offset-2 hover:underline">
               {t("nav.login")}
             </Link>
           </p>
