@@ -31,17 +31,23 @@ export const Route = createFileRoute("/auth/signup")({
 function SignupPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const saveAnswers = useServerFn(setMySecurityAnswers);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [country, setCountry] = useState<string>("");
   const [language, setLanguage] = useState<"bn" | "en">("bn");
+  const [q1, setQ1] = useState<string>("");
+  const [q2, setQ2] = useState<string>("");
+  const [a1, setA1] = useState("");
+  const [a2, setA2] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{
     fullName?: string;
     email?: string;
     password?: string;
     country?: string;
+    sq?: string;
     form?: string;
   }>({});
 
