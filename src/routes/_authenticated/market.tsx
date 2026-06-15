@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Phone, Flag, CheckCircle2, Store, LineChart } from "lucide-react";
+import { Plus, Trash2, Pencil, Phone, Flag, CheckCircle2, Store, LineChart, Sparkles, Loader2 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   createListing, updateListing, deleteListing, markListingSold,
   revealContact, reportListing, getImageSignedUrl,
 } from "@/lib/market.functions";
+import { sellAdvisor } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/_authenticated/market")({
   head: () => ({ meta: [{ title: "Market — FarmHelper" }] }),
@@ -93,25 +94,81 @@ function PricesTab() {
           </div>
         )}
         {grouped.map(({ crop, latest, trend }) => (
-          <Card key={crop}>
-            <CardContent className="flex items-center justify-between p-4">
-              <div>
-                <div className="font-medium">{crop}</div>
-                <div className="text-xs text-muted-foreground">{latest.region ?? "—"} · as of {latest.as_of}</div>
-              </div>
-              <div className="text-right">
-                <div className="font-semibold">{latest.price} {latest.currency} <span className="text-xs text-muted-foreground">/ {latest.unit}</span></div>
-                {trend !== 0 && (
-                  <div className={`text-xs ${trend > 0 ? "text-primary" : "text-destructive"}`}>
-                    {trend > 0 ? "▲" : "▼"} {Math.abs(trend).toFixed(2)}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <PriceCard key={crop} crop={crop} latest={latest} trend={trend} />
         ))}
       </div>
     </div>
+  );
+}
+
+
+type PriceRow = { id: string; crop_name: string; price: number; currency: string; unit: string; as_of: string; region: string | null };
+
+function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; trend: number }) {
+  const { profile } = useAuth();
+  const adviseFn = useServerFn(sellAdvisor);
+  const [open, setOpen] = useState(false);
+  const [advice, setAdvice] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function ask() {
+    setOpen(true);
+    if (advice) return;
+    setLoading(true);
+    try {
+      const r = await adviseFn({
+        data: {
+          crop_name: crop,
+          current_price: latest.price,
+          unit: latest.unit,
+          trend,
+          country: profile?.country ?? null,
+          region: latest.region ?? profile?.region ?? null,
+          currency: latest.currency,
+          language: profile?.country === "BD" && profile?.preferred_language === "bn" ? "bn" : "en",
+        },
+      });
+      setAdvice(r.advice);
+    } catch (e) {
+      toast.error((e as Error).message);
+      setAdvice("AI is unavailable. Please retry shortly.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between gap-3 p-4">
+        <div className="min-w-0">
+          <div className="font-medium">{crop}</div>
+          <div className="text-xs text-muted-foreground">{latest.region ?? "—"} · as of {latest.as_of}</div>
+        </div>
+        <div className="text-right">
+          <div className="font-semibold">{latest.price} {latest.currency} <span className="text-xs text-muted-foreground">/ {latest.unit}</span></div>
+          {trend !== 0 && (
+            <div className={`text-xs ${trend > 0 ? "text-primary" : "text-destructive"}`}>
+              {trend > 0 ? "▲" : "▼"} {Math.abs(trend).toFixed(2)}
+            </div>
+          )}
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" onClick={ask}>
+              <Sparkles className="mr-1 h-3 w-3" /> Ask AI
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Sell or hold — {crop}?</DialogTitle></DialogHeader>
+            {loading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Thinking…</div>
+            ) : (
+              <p className="whitespace-pre-wrap text-sm">{advice}</p>
+            )}
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, CheckCircle2, Circle, CalendarDays } from "lucide-react";
+import { Plus, Trash2, CheckCircle2, Circle, CalendarDays, Sparkles, Loader2 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { listTasks, createTask, deleteTask, toggleTaskStatus } from "@/lib/calendar.functions";
 import { listPlots } from "@/lib/farm.functions";
+import { cropCalendar } from "@/lib/ai.functions";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({ meta: [{ title: "Calendar — FarmHelper" }] }),
@@ -23,15 +25,30 @@ export const Route = createFileRoute("/_authenticated/calendar")({
 
 function CalendarPage() {
   const qc = useQueryClient();
+  const { profile } = useAuth();
   const listFn = useServerFn(listTasks);
   const plotsFn = useServerFn(listPlots);
   const createFn = useServerFn(createTask);
   const toggleFn = useServerFn(toggleTaskStatus);
   const delFn = useServerFn(deleteTask);
+  const aiFn = useServerFn(cropCalendar);
 
   const q = useQuery({ queryKey: ["tasks"], queryFn: () => listFn() });
   const plotsQ = useQuery({ queryKey: ["plots"], queryFn: () => plotsFn() });
   const [open, setOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiCrop, setAiCrop] = useState("");
+  const [aiPlot, setAiPlot] = useState<string>("none");
+
+  const aiMut = useMutation({
+    mutationFn: aiFn,
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success(`Added ${r.inserted} AI tasks`);
+      setAiOpen(false); setAiCrop("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const create = useMutation({
     mutationFn: createFn,
@@ -57,14 +74,60 @@ function CalendarPage() {
             <h1 className="text-3xl font-bold tracking-tight">Calendar</h1>
             <p className="mt-1 text-sm text-muted-foreground">Track farm tasks by due date.</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> Add task</Button></DialogTrigger>
-            <TaskDialog
-              plots={plotsQ.data ?? []}
-              submitting={create.isPending}
-              onSubmit={(v) => create.mutate({ data: v })}
-            />
-          </Dialog>
+          <div className="flex gap-2">
+            <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline"><Sparkles className="mr-1 h-4 w-4" /> Generate plan with AI</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>AI calendar plan</DialogTitle></DialogHeader>
+                <form
+                  className="space-y-3"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!aiCrop.trim()) return toast.error("Crop name is required");
+                    aiMut.mutate({
+                      data: {
+                        crop_name: aiCrop.trim(),
+                        plot_id: aiPlot === "none" ? null : aiPlot,
+                        country: profile?.country ?? null,
+                        region: profile?.region ?? null,
+                        currency: profile?.currency ?? "USD",
+                        language: profile?.country === "BD" && profile?.preferred_language === "bn" ? "bn" : "en",
+                      },
+                    });
+                  }}
+                >
+                  <div className="grid gap-2"><Label>Crop</Label>
+                    <Input value={aiCrop} onChange={(e) => setAiCrop(e.target.value)} placeholder="e.g. Tomato" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Plot (optional)</Label>
+                    <Select value={aiPlot} onValueChange={setAiPlot}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {(plotsQ.data ?? []).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={aiMut.isPending}>
+                      {aiMut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Generating…</> : "Generate"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> Add task</Button></DialogTrigger>
+              <TaskDialog
+                plots={plotsQ.data ?? []}
+                submitting={create.isPending}
+                onSubmit={(v) => create.mutate({ data: v })}
+              />
+            </Dialog>
+          </div>
         </div>
 
         <div className="mt-6 space-y-3">
