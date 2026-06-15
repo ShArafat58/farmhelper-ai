@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Phone, Flag, CheckCircle2, Store, LineChart } from "lucide-react";
+import { Plus, Trash2, Pencil, Phone, Flag, CheckCircle2, Store, LineChart, Sparkles, Loader2 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   createListing, updateListing, deleteListing, markListingSold,
   revealContact, reportListing, getImageSignedUrl,
 } from "@/lib/market.functions";
+import { sellAdvisor } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/_authenticated/market")({
   head: () => ({ meta: [{ title: "Market — FarmHelper" }] }),
