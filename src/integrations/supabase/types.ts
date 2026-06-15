@@ -321,6 +321,9 @@ export type Database = {
           listing_id: string
           reason: string | null
           reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
         }
         Insert: {
           created_at?: string
@@ -328,6 +331,9 @@ export type Database = {
           listing_id: string
           reason?: string | null
           reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
         }
         Update: {
           created_at?: string
@@ -335,6 +341,9 @@ export type Database = {
           listing_id?: string
           reason?: string | null
           reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
         }
         Relationships: [
           {
@@ -518,6 +527,7 @@ export type Database = {
       app_role: "user" | "admin"
       content_status: "visible" | "hidden"
       listing_status: "active" | "sold" | "hidden" | "removed"
+      report_status: "open" | "resolved" | "dismissed"
       task_source: "manual" | "ai"
       task_status: "pending" | "done"
     }
@@ -650,6 +660,7 @@ export const Constants = {
       app_role: ["user", "admin"],
       content_status: ["visible", "hidden"],
       listing_status: ["active", "sold", "hidden", "removed"],
+      report_status: ["open", "resolved", "dismissed"],
       task_source: ["manual", "ai"],
       task_status: ["pending", "done"],
     },
