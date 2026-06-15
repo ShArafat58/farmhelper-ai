@@ -5,6 +5,7 @@ import { Stethoscope, TrendingUp, CalendarDays, Store, ArrowRight } from "lucide
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import heroAsset from "@/assets/hero-farm.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
