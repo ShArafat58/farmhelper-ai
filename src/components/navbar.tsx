@@ -56,7 +56,7 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <BrandLogo />
           <nav className="hidden items-center gap-1 md:flex">
-            {NAV_KEYS.map(({ key, to }) => {
+            {NAV_LINKS.map(({ key, to }) => {
               const active = pathname === to;
               return (
                 <Link
@@ -136,7 +136,7 @@ export function Navbar() {
       {mobileOpen && (
         <div className="border-t border-border bg-background md:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
-            {NAV_KEYS.map(({ key, to }) => (
+            {NAV_LINKS.map(({ key, to }) => (
               <Link
                 key={key}
                 to={to}
