@@ -45,8 +45,16 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-primary/5 to-background px-4 py-10">
-      <div className="w-full max-w-md">
+    <div
+      className="relative flex min-h-screen items-center justify-center px-4 py-10"
+      style={{
+        backgroundImage: `url("${authBg.url}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/80 to-background/95" />
+      <div className="relative w-full max-w-md">
         <div className="mb-6 flex justify-center">
           <BrandLogo />
         </div>
