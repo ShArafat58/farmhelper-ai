@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, CheckCircle2, Circle, CalendarDays } from "lucide-react";
+import { Plus, Trash2, CheckCircle2, Circle, CalendarDays, Sparkles, Loader2 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { listTasks, createTask, deleteTask, toggleTaskStatus } from "@/lib/calendar.functions";
 import { listPlots } from "@/lib/farm.functions";
+import { cropCalendar } from "@/lib/ai.functions";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({ meta: [{ title: "Calendar — FarmHelper" }] }),
