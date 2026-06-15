@@ -14,27 +14,450 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
+      ai_usage_daily: {
         Row: {
-          country: string | null
-          created_at: string
-          full_name: string | null
+          count: number
+          date: string
           id: string
-          preferred_language: string
+          user_id: string
         }
         Insert: {
-          country?: string | null
-          created_at?: string
-          full_name?: string | null
-          id: string
-          preferred_language?: string
+          count?: number
+          date?: string
+          id?: string
+          user_id: string
         }
         Update: {
+          count?: number
+          date?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      badges: {
+        Row: {
+          awarded_at: string
+          code: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          code: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          code?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      calendar_tasks: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          id: string
+          plot_id: string | null
+          source: Database["public"]["Enums"]["task_source"]
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          plot_id?: string | null
+          source?: Database["public"]["Enums"]["task_source"]
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          plot_id?: string | null
+          source?: Database["public"]["Enums"]["task_source"]
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_tasks_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "farm_plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          ai_answer: string | null
+          body: string
+          created_at: string
+          id: string
+          language: string | null
+          moderated_at: string | null
+          moderated_by: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          ai_answer?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          ai_answer?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_ai: boolean
+          language: string | null
+          moderated_at: string | null
+          moderated_by: string | null
+          post_id: string
+          status: Database["public"]["Enums"]["content_status"]
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_ai?: boolean
+          language?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          post_id: string
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_ai?: boolean
+          language?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          post_id?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_reveals: {
+        Row: {
+          id: string
+          listing_id: string
+          revealed_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          revealed_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          revealed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_reveals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "market_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crop_plans: {
+        Row: {
+          ai_result: Json | null
+          country: string | null
+          created_at: string
+          id: string
+          language: string | null
+          region: string | null
+          season_month: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_result?: Json | null
           country?: string | null
           created_at?: string
+          id?: string
+          language?: string | null
+          region?: string | null
+          season_month?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_result?: Json | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          region?: string | null
+          season_month?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      diagnoses: {
+        Row: {
+          ai_result: Json | null
+          created_at: string
+          crop_name: string | null
+          id: string
+          image_path: string | null
+          language: string | null
+          symptoms: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_result?: Json | null
+          created_at?: string
+          crop_name?: string | null
+          id?: string
+          image_path?: string | null
+          language?: string | null
+          symptoms?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_result?: Json | null
+          created_at?: string
+          crop_name?: string | null
+          id?: string
+          image_path?: string | null
+          language?: string | null
+          symptoms?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      farm_plots: {
+        Row: {
+          area: number | null
+          country: string | null
+          created_at: string
+          crop_name: string | null
+          id: string
+          name: string
+          planted_at: string | null
+          region: string | null
+          user_id: string
+        }
+        Insert: {
+          area?: number | null
+          country?: string | null
+          created_at?: string
+          crop_name?: string | null
+          id?: string
+          name: string
+          planted_at?: string | null
+          region?: string | null
+          user_id: string
+        }
+        Update: {
+          area?: number | null
+          country?: string | null
+          created_at?: string
+          crop_name?: string | null
+          id?: string
+          name?: string
+          planted_at?: string | null
+          region?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      market_listings: {
+        Row: {
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          crop_name: string
+          currency: string | null
+          id: string
+          image_path: string | null
+          moderated_at: string | null
+          moderated_by: string | null
+          price: number | null
+          qty: number | null
+          region: string | null
+          status: Database["public"]["Enums"]["listing_status"]
+          unit: string | null
+          user_id: string
+        }
+        Insert: {
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          crop_name: string
+          currency?: string | null
+          id?: string
+          image_path?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          price?: number | null
+          qty?: number | null
+          region?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          unit?: string | null
+          user_id: string
+        }
+        Update: {
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          crop_name?: string
+          currency?: string | null
+          id?: string
+          image_path?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          price?: number | null
+          qty?: number | null
+          region?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          unit?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      market_prices: {
+        Row: {
+          as_of: string
+          country: string
+          created_at: string
+          crop_name: string
+          currency: string
+          id: string
+          price: number
+          region: string | null
+          unit: string
+        }
+        Insert: {
+          as_of?: string
+          country: string
+          created_at?: string
+          crop_name: string
+          currency: string
+          id?: string
+          price: number
+          region?: string | null
+          unit: string
+        }
+        Update: {
+          as_of?: string
+          country?: string
+          created_at?: string
+          crop_name?: string
+          currency?: string
+          id?: string
+          price?: number
+          region?: string | null
+          unit?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          area_unit: string
+          country: string | null
+          created_at: string
+          currency: string
+          full_name: string | null
+          id: string
+          krishi_score: number
+          preferred_language: string
+          region: string | null
+        }
+        Insert: {
+          area_unit?: string
+          country?: string | null
+          created_at?: string
+          currency?: string
+          full_name?: string | null
+          id: string
+          krishi_score?: number
+          preferred_language?: string
+          region?: string | null
+        }
+        Update: {
+          area_unit?: string
+          country?: string | null
+          created_at?: string
+          currency?: string
           full_name?: string | null
           id?: string
+          krishi_score?: number
           preferred_language?: string
+          region?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -43,10 +466,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      award_badge: {
+        Args: { _code: string; _user_id: string }
+        Returns: undefined
+      }
+      bump_score: {
+        Args: { _delta: number; _user_id: string }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "admin"
+      content_status: "visible" | "hidden"
+      listing_status: "active" | "sold" | "hidden" | "removed"
+      task_source: "manual" | "ai"
+      task_status: "pending" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -173,6 +614,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "admin"],
+      content_status: ["visible", "hidden"],
+      listing_status: ["active", "sold", "hidden", "removed"],
+      task_source: ["manual", "ai"],
+      task_status: ["pending", "done"],
+    },
   },
 } as const

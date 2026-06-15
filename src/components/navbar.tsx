@@ -27,7 +27,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const { t, i18n } = useTranslation();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, isAdmin, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -106,6 +106,14 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard">{t("nav.dashboard")}</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">{t("nav.settings")}</Link>
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin">{t("nav.admin")}</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleLogout}>
                   {t("nav.logout")}
                 </DropdownMenuItem>

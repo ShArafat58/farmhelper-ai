@@ -11,6 +11,8 @@
     "calendar": "Calendar",
     "market": "Market",
     "community": "Community",
+    "settings": "Settings",
+    "admin": "Admin",
     "login": "Log in",
     "signup": "Sign up",
     "logout": "Log out",
@@ -29,22 +31,10 @@
     "ctaLogin": "I already have an account",
     "featuresTitle": "Everything a smallholder needs",
     "features": {
-      "diagnose": {
-        "title": "Diagnose",
-        "body": "Snap a photo of a sick leaf and get an AI diagnosis with treatment steps in your language."
-      },
-      "plan": {
-        "title": "Plan profit",
-        "body": "Tell us your land and season — AI ranks the most profitable crops for your region."
-      },
-      "calendar": {
-        "title": "Smart calendar",
-        "body": "Auto-generated sowing, watering, fertilizing and harvest tasks. Never miss a step."
-      },
-      "sell": {
-        "title": "Sell direct",
-        "body": "List your harvest and reach buyers directly. Skip the middleman, keep the margin."
-      }
+      "diagnose": { "title": "Diagnose", "body": "Snap a photo of a sick leaf and get an AI diagnosis with treatment steps in your language." },
+      "plan": { "title": "Plan profit", "body": "Tell us your land and season — AI ranks the most profitable crops for your region." },
+      "calendar": { "title": "Smart calendar", "body": "Auto-generated sowing, watering, fertilizing and harvest tasks. Never miss a step." },
+      "sell": { "title": "Sell direct", "body": "List your harvest and reach buyers directly. Skip the middleman, keep the margin." }
     },
     "howTitle": "How it works",
     "how": {
@@ -86,6 +76,34 @@
     "welcome": "Welcome, {{name}}",
     "subtitle": "This is your FarmHelper dashboard. We're just getting started — more features will appear here soon.",
     "placeholderCard": "Your plots, tasks, AI insights and Krishi Score will appear here."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Update your region, units and preferences.",
+    "profileCard": "Profile",
+    "fullName": "Full name",
+    "country": "Country",
+    "region": "Region / district",
+    "regionPlaceholder": "e.g. Dhaka, Punjab, Nairobi",
+    "areaUnit": "Area unit",
+    "currency": "Currency",
+    "language": "Preferred language",
+    "save": "Save changes",
+    "saved": "Settings saved.",
+    "saveError": "Could not save. Please try again."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Platform overview and moderation queue.",
+    "deniedTitle": "Admins only",
+    "deniedBody": "You don't have access to this area.",
+    "stats": {
+      "users": "Users",
+      "listings": "Listings",
+      "posts": "Community posts",
+      "diagnoses": "Diagnoses"
+    },
+    "moderationPlaceholder": "Moderation queue will appear here."
   },
   "common": {
     "loading": "Loading…"
