@@ -91,6 +91,10 @@ function CropDoctorPage() {
       toast.error("Add crop name and a few words about the symptoms.");
       return;
     }
+    if (!imagePath) {
+      toast.error("Please attach a photo of the crop to diagnose");
+      return;
+    }
     mut.mutate({
       data: {
         crop_name: crop.trim(),
