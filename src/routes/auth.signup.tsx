@@ -60,6 +60,9 @@ function SignupPage() {
     if (!/^\S+@\S+\.\S+$/.test(email)) next.email = t("auth.errors.emailInvalid");
     if (password.length < 8) next.password = t("auth.errors.passwordShort");
     if (!country) next.country = t("auth.errors.countryRequired");
+    if (!q1 || !q2) next.sq = t("securityQuestions.mustDiffer");
+    else if (q1 === q2) next.sq = t("securityQuestions.mustDiffer");
+    else if (!a1.trim() || !a2.trim()) next.sq = t("securityQuestions.answerRequired");
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -78,15 +81,31 @@ function SignupPage() {
         },
       },
     });
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       setErrors({ form: error.message });
       toast.error(error.message);
       return;
     }
+    // Sign in to obtain a session (in case email confirmation is disabled and signUp didn't return one)
+    try {
+      await saveAnswers({
+        data: {
+          pairs: [
+            { questionKey: q1, answer: a1 },
+            { questionKey: q2, answer: a2 },
+          ],
+        },
+      });
+    } catch (err) {
+      // Non-fatal: account is created; user can set in Settings.
+      console.warn("Could not save security questions at signup:", err);
+    }
+    setSubmitting(false);
     toast.success("Account created");
     navigate({ to: "/dashboard" });
   }
+
 
   return (
     <div
