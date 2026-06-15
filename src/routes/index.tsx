@@ -40,23 +40,24 @@ function Landing() {
     <SiteLayout>
       {/* Hero */}
       <section
-        className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/30 via-primary/10 to-background"
+        className="relative overflow-hidden border-b border-border"
         style={{
           backgroundImage: `url("${heroAsset.url}")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background/95 dark:from-background/90 dark:via-background/80 dark:to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/45 to-black/75" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-transparent mix-blend-multiply" />
         <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-block rounded-full border border-primary/40 bg-primary/15 px-3 py-1 text-xs font-medium text-primary backdrop-blur-sm">
+            <span className="inline-block rounded-full border border-white/40 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
               {t("landing.heroEyebrow")}
             </span>
-            <h1 className="mt-5 text-4xl font-bold tracking-tight text-foreground drop-shadow-sm sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 text-4xl font-bold tracking-tight text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
               {t("landing.heroTitle")}
             </h1>
-            <p className="mt-5 text-base leading-relaxed text-foreground/85 sm:text-lg">
+            <p className="mt-5 text-base leading-relaxed text-white/90 drop-shadow sm:text-lg">
               {t("landing.heroSubtitle")}
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -65,7 +66,7 @@ function Landing() {
                   {t("landing.ctaStart")} <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="bg-background/80 backdrop-blur-sm">
+              <Button size="lg" variant="outline" asChild className="border-white/60 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white">
                 <Link to="/auth/login">{t("landing.ctaLogin")}</Link>
               </Button>
             </div>
