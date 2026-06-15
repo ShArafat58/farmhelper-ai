@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -27,11 +26,6 @@ import { Route as AuthenticatedCommunityRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OverviewRoute = OverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
@@ -118,7 +112,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/overview': typeof OverviewRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/community': typeof AuthenticatedCommunityRoute
@@ -136,7 +129,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/overview': typeof OverviewRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/community': typeof AuthenticatedCommunityRoute
@@ -156,7 +148,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/overview': typeof OverviewRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
@@ -176,7 +167,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/overview'
-    | '/reset-password'
     | '/admin'
     | '/calendar'
     | '/community'
@@ -194,7 +184,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/overview'
-    | '/reset-password'
     | '/admin'
     | '/calendar'
     | '/community'
@@ -213,7 +202,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/overview'
-    | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/calendar'
     | '/_authenticated/community'
@@ -233,18 +221,10 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   OverviewRoute: typeof OverviewRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/overview': {
       id: '/overview'
       path: '/overview'
@@ -405,7 +385,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   OverviewRoute: OverviewRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

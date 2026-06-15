@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,8 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
+import { SECURITY_QUESTION_KEYS } from "@/lib/security-questions";
+import { getMySecurityQuestionKeys, setMySecurityAnswers } from "@/lib/security.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — FarmHelper" }] }),
@@ -30,11 +33,21 @@ function SettingsPage() {
   const { t } = useTranslation();
   const { profile, refreshProfile, loading } = useAuth();
   const navigate = useNavigate();
+  const fetchKeys = useServerFn(getMySecurityQuestionKeys);
+  const saveAnswers = useServerFn(setMySecurityAnswers);
   const [region, setRegion] = useState("");
   const [areaUnit, setAreaUnit] = useState("acre");
   const [currency, setCurrency] = useState("USD");
   const [lang, setLang] = useState<"en" | "bn">("en");
   const [saving, setSaving] = useState(false);
+
+  const [existingCount, setExistingCount] = useState<number>(0);
+  const [q1, setQ1] = useState("");
+  const [q2, setQ2] = useState("");
+  const [a1, setA1] = useState("");
+  const [a2, setA2] = useState("");
+  const [sqSaving, setSqSaving] = useState(false);
+  const [sqError, setSqError] = useState<string | undefined>();
 
   useEffect(() => {
     if (profile) {
@@ -44,6 +57,53 @@ function SettingsPage() {
       setLang((profile.preferred_language as "en" | "bn") ?? "en");
     }
   }, [profile]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchKeys()
+      .then((r) => {
+        if (cancelled) return;
+        setExistingCount(r.keys?.length ?? 0);
+        if (r.keys?.[0]) setQ1(r.keys[0]);
+        if (r.keys?.[1]) setQ2(r.keys[1]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchKeys]);
+
+  async function handleSaveSecurity() {
+    setSqError(undefined);
+    if (!q1 || !q2 || q1 === q2) {
+      setSqError(t("securityQuestions.mustDiffer"));
+      return;
+    }
+    if (!a1.trim() || !a2.trim()) {
+      setSqError(t("securityQuestions.answerRequired"));
+      return;
+    }
+    setSqSaving(true);
+    try {
+      await saveAnswers({
+        data: {
+          pairs: [
+            { questionKey: q1, answer: a1 },
+            { questionKey: q2, answer: a2 },
+          ],
+        },
+      });
+      toast.success(t("securityQuestions.saved"));
+      setA1("");
+      setA2("");
+      setExistingCount(2);
+    } catch {
+      toast.error(t("securityQuestions.saveError"));
+    } finally {
+      setSqSaving(false);
+    }
+  }
+
 
   const isBD = profile?.country === "BD";
 
@@ -154,6 +214,48 @@ function SettingsPage() {
               </Button>
               <Button variant="outline" onClick={handleLogout}>
                 {t("nav.logout")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{t("securityQuestions.sectionTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">{t("securityQuestions.sectionHelp")}</p>
+            {existingCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {t("securityQuestions.current", { count: existingCount })}
+              </p>
+            )}
+            {[
+              { q: q1, setQ: setQ1, a: a1, setA: setA1, qLabel: "question1", aLabel: "answer1", other: q2 },
+              { q: q2, setQ: setQ2, a: a2, setA: setA2, qLabel: "question2", aLabel: "answer2", other: q1 },
+            ].map((row, idx) => (
+              <div key={idx} className="grid gap-2">
+                <Label>{t(`securityQuestions.${row.qLabel}`)}</Label>
+                <Select value={row.q} onValueChange={row.setQ}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("securityQuestions.pickQuestion")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SECURITY_QUESTION_KEYS.map((k) => (
+                      <SelectItem key={k} value={k} disabled={k === row.other}>
+                        {t(`securityQuestions.items.${k}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Label>{t(`securityQuestions.${row.aLabel}`)}</Label>
+                <Input value={row.a} onChange={(e) => row.setA(e.target.value)} />
+              </div>
+            ))}
+            {sqError && <p className="text-sm text-destructive">{sqError}</p>}
+            <div className="pt-2">
+              <Button onClick={handleSaveSecurity} disabled={sqSaving}>
+                {sqSaving ? t("common.saving") : t("securityQuestions.save")}
               </Button>
             </div>
           </CardContent>

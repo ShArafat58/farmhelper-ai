@@ -17,6 +17,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES } from "@/lib/countries";
 import authBg from "@/assets/auth-bg.jpg.asset.json";
+import { SECURITY_QUESTION_KEYS } from "@/lib/security-questions";
+import { setMySecurityAnswers } from "@/lib/security.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
@@ -28,17 +31,23 @@ export const Route = createFileRoute("/auth/signup")({
 function SignupPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const saveAnswers = useServerFn(setMySecurityAnswers);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [country, setCountry] = useState<string>("");
   const [language, setLanguage] = useState<"bn" | "en">("bn");
+  const [q1, setQ1] = useState<string>("");
+  const [q2, setQ2] = useState<string>("");
+  const [a1, setA1] = useState("");
+  const [a2, setA2] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{
     fullName?: string;
     email?: string;
     password?: string;
     country?: string;
+    sq?: string;
     form?: string;
   }>({});
 
@@ -51,6 +60,9 @@ function SignupPage() {
     if (!/^\S+@\S+\.\S+$/.test(email)) next.email = t("auth.errors.emailInvalid");
     if (password.length < 8) next.password = t("auth.errors.passwordShort");
     if (!country) next.country = t("auth.errors.countryRequired");
+    if (!q1 || !q2) next.sq = t("securityQuestions.mustDiffer");
+    else if (q1 === q2) next.sq = t("securityQuestions.mustDiffer");
+    else if (!a1.trim() || !a2.trim()) next.sq = t("securityQuestions.answerRequired");
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -69,15 +81,31 @@ function SignupPage() {
         },
       },
     });
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       setErrors({ form: error.message });
       toast.error(error.message);
       return;
     }
+    // Sign in to obtain a session (in case email confirmation is disabled and signUp didn't return one)
+    try {
+      await saveAnswers({
+        data: {
+          pairs: [
+            { questionKey: q1, answer: a1 },
+            { questionKey: q2, answer: a2 },
+          ],
+        },
+      });
+    } catch (err) {
+      // Non-fatal: account is created; user can set in Settings.
+      console.warn("Could not save security questions at signup:", err);
+    }
+    setSubmitting(false);
     toast.success("Account created");
     navigate({ to: "/dashboard" });
   }
+
 
   return (
     <div
@@ -182,9 +210,48 @@ function SignupPage() {
               </div>
             )}
 
+            <div className="rounded-lg border border-white/25 bg-white/10 p-3 space-y-3">
+              <div>
+                <p className="text-sm font-medium text-white">{t("securityQuestions.sectionTitle")}</p>
+                <p className="text-xs text-white/75">{t("securityQuestions.sectionHelp")}</p>
+              </div>
+              {[
+                { q: q1, setQ: setQ1, a: a1, setA: setA1, qLabel: "question1", aLabel: "answer1", other: q2 },
+                { q: q2, setQ: setQ2, a: a2, setA: setA2, qLabel: "question2", aLabel: "answer2", other: q1 },
+              ].map((row, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div>
+                    <Label className="text-white">{t(`securityQuestions.${row.qLabel}`)}</Label>
+                    <Select value={row.q} onValueChange={row.setQ}>
+                      <SelectTrigger className="border-white/30 bg-white/20 text-white focus:ring-white/60">
+                        <SelectValue placeholder={t("securityQuestions.pickQuestion")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SECURITY_QUESTION_KEYS.map((k) => (
+                          <SelectItem key={k} value={k} disabled={k === row.other}>
+                            {t(`securityQuestions.items.${k}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-white">{t(`securityQuestions.${row.aLabel}`)}</Label>
+                    <Input
+                      value={row.a}
+                      onChange={(e) => row.setA(e.target.value)}
+                      className="border-white/30 bg-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/60"
+                    />
+                  </div>
+                </div>
+              ))}
+              {errors.sq && <p className="text-xs text-red-200">{errors.sq}</p>}
+            </div>
+
             {errors.form && (
               <p className="text-sm text-red-200">{errors.form}</p>
             )}
+
 
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? t("auth.signingUp") : t("auth.submitSignup")}
