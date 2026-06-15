@@ -160,7 +160,7 @@ function ProfitPage() {
         {result && (
           <div className="mt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{sorted.length} crops · season: {result.season} · currency: {result.currency}</p>
+              <p className="text-sm text-muted-foreground">{t("profit.summary", { count: sorted.length, season: result.season, currency: result.currency })}</p>
             </div>
 
             {top && (
@@ -168,7 +168,7 @@ function ProfitPage() {
                 <CardContent className="flex items-center gap-3 p-4">
                   <Trophy className="h-6 w-6 text-primary" />
                   <div className="flex-1">
-                    <div className="font-semibold">Best profit: {top.crop}</div>
+                    <div className="font-semibold">{t("profit.bestProfit", { crop: top.crop })}</div>
                     <div className="text-xs text-muted-foreground">{top.notes}</div>
                   </div>
                   <div className="text-right font-semibold">{top.est_profit.toLocaleString()} {result.currency}</div>
@@ -180,12 +180,12 @@ function ProfitPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead><button onClick={() => toggleSort("crop")} className="flex items-center gap-1">Crop <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead><button onClick={() => toggleSort("est_cost")} className="flex items-center gap-1">Cost <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead><button onClick={() => toggleSort("est_revenue")} className="flex items-center gap-1">Revenue <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead><button onClick={() => toggleSort("est_profit")} className="flex items-center gap-1">Profit <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead>Demand</TableHead>
-                    <TableHead>Season fit</TableHead>
+                    <TableHead><button onClick={() => toggleSort("crop")} className="flex items-center gap-1">{t("profit.cols.crop")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead><button onClick={() => toggleSort("est_cost")} className="flex items-center gap-1">{t("profit.cols.cost")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead><button onClick={() => toggleSort("est_revenue")} className="flex items-center gap-1">{t("profit.cols.revenue")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead><button onClick={() => toggleSort("est_profit")} className="flex items-center gap-1">{t("profit.cols.profit")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead>{t("profit.cols.demand")}</TableHead>
+                    <TableHead>{t("profit.cols.seasonFit")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
