@@ -9,13 +9,18 @@ export type Profile = {
   id: string;
   full_name: string | null;
   country: string | null;
+  region: string | null;
+  area_unit: string;
+  currency: string;
   preferred_language: SupportedLang;
+  krishi_score: number;
 };
 
 type AuthCtx = {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  isAdmin: boolean;
   loading: boolean;
   refreshProfile: () => Promise<void>;
 };
@@ -24,6 +29,7 @@ const Ctx = createContext<AuthCtx>({
   user: null,
   session: null,
   profile: null,
+  isAdmin: false,
   loading: true,
   refreshProfile: async () => {},
 });
@@ -31,47 +37,47 @@ const Ctx = createContext<AuthCtx>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
 
   async function loadProfile(userId: string) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("id, full_name, country, preferred_language")
-      .eq("id", userId)
-      .maybeSingle();
-    if (data) {
-      const p = data as Profile;
+    const [{ data: pdata }, { data: rdata }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, full_name, country, region, area_unit, currency, preferred_language, krishi_score")
+        .eq("id", userId)
+        .maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", userId),
+    ]);
+    if (pdata) {
+      const p = pdata as Profile;
       setProfile(p);
       const lang: SupportedLang =
         p.country === "BD" && p.preferred_language === "bn" ? "bn" : "en";
       ensureI18n();
-      if (i18n.language !== lang) {
-        void i18n.changeLanguage(lang);
-      }
+      if (i18n.language !== lang) void i18n.changeLanguage(lang);
     } else {
       setProfile(null);
     }
+    setIsAdmin(!!rdata?.some((r) => r.role === "admin"));
   }
 
   useEffect(() => {
-    // Listener first, then session fetch.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
-        // Defer to avoid recursive auth calls in the callback.
         setTimeout(() => void loadProfile(s.user.id), 0);
       } else {
         setProfile(null);
+        setIsAdmin(false);
         void ensureI18n().changeLanguage("en");
       }
     });
 
     void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session?.user) {
-        void loadProfile(data.session.user.id);
-      }
+      if (data.session?.user) void loadProfile(data.session.user.id);
       setLoading(false);
     });
 
@@ -89,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         session,
         profile,
+        isAdmin,
         loading,
         refreshProfile,
       }}
