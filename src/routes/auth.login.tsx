@@ -53,14 +53,14 @@ function LoginPage() {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-black/25 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/35 to-primary/30" />
       <div className="relative w-full max-w-md">
         <div className="mb-6 flex justify-center">
           <BrandLogo />
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-          <h1 className="text-2xl font-bold text-foreground">{t("auth.loginTitle")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("auth.loginSubtitle")}</p>
+        <div className="rounded-2xl border border-white/25 bg-white/15 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+          <h1 className="text-2xl font-bold text-white drop-shadow">{t("auth.loginTitle")}</h1>
+          <p className="mt-1 text-sm text-white/80">{t("auth.loginSubtitle")}</p>
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
