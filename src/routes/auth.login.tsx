@@ -53,7 +53,7 @@ function LoginPage() {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/80 to-background/95" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-black/25 to-black/30" />
       <div className="relative w-full max-w-md">
         <div className="mb-6 flex justify-center">
           <BrandLogo />
