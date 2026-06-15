@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { MessagesSquare, Loader2, Sparkles, Send } from "lucide-react";
 
@@ -27,6 +28,7 @@ type Post = {
 };
 
 function CommunityPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { profile } = useAuth();
   const listFn = useServerFn(listPosts);
@@ -41,14 +43,14 @@ function CommunityPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["posts"] });
       setTitle(""); setBody("");
-      toast.success("Question posted");
+      toast.success(t("community.posted"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (title.trim().length < 3 || body.trim().length < 3) return toast.error("Add a title and question.");
+    if (title.trim().length < 3 || body.trim().length < 3) return toast.error(t("community.needContent"));
     mut.mutate({
       data: {
         title: title.trim(),
@@ -67,40 +69,40 @@ function CommunityPage() {
         <div className="flex items-center gap-3">
           <MessagesSquare className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Community</h1>
-            <p className="text-sm text-muted-foreground">Ask farmers and get an instant AI answer.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("community.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("community.subtitle")}</p>
           </div>
         </div>
 
         <Card className="mt-6">
-          <CardHeader><CardTitle className="text-lg">Ask a question</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-lg">{t("community.ask")}</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={submit} className="space-y-3">
-              <div className="grid gap-2"><Label>Title</Label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} placeholder="What's wrong with my paddy?" />
+              <div className="grid gap-2"><Label>{t("community.questionTitle")}</Label>
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} placeholder={t("community.questionPlaceholder")} />
               </div>
-              <div className="grid gap-2"><Label>Details</Label>
+              <div className="grid gap-2"><Label>{t("community.details")}</Label>
                 <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} maxLength={4000} />
               </div>
               <Button type="submit" disabled={mut.isPending}>
-                {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Posting…</> : "Post question"}
+                {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> {t("community.posting")}</> : t("community.post")}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <h2 className="mt-10 text-lg font-semibold">Recent</h2>
+        <h2 className="mt-10 text-lg font-semibold">{t("community.recent")}</h2>
         <div className="mt-3 space-y-4">
           {q.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-32" />)}
           {q.isError && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
-              <p className="text-sm text-destructive">Could not load posts.</p>
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>Retry</Button>
+              <p className="text-sm text-destructive">{t("community.loadError")}</p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>{t("common.retry")}</Button>
             </div>
           )}
           {q.data && q.data.length === 0 && (
             <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
-              No questions yet — be the first to ask.
+              {t("community.noPosts")}
             </div>
           )}
           {(q.data as Post[] | undefined)?.map((p) => <PostCard key={p.id} post={p} />)}
@@ -111,6 +113,7 @@ function CommunityPage() {
 }
 
 function PostCard({ post }: { post: Post }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const repliesFn = useServerFn(listReplies);
   const replyFn = useServerFn(createReply);
@@ -141,7 +144,7 @@ function PostCard({ post }: { post: Post }) {
         {post.ai_answer && (
           <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
             <div className="mb-1 flex items-center gap-1 text-xs font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> AI answer
+              <Sparkles className="h-3 w-3" /> {t("community.aiAnswer")}
             </div>
             <p className="whitespace-pre-wrap text-sm">{post.ai_answer}</p>
           </div>
@@ -149,7 +152,7 @@ function PostCard({ post }: { post: Post }) {
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleString()}</span>
           <Button variant="ghost" size="sm" onClick={() => setOpen((o) => !o)}>
-            {open ? "Hide replies" : "View / reply"}
+            {open ? t("community.hideReplies") : t("community.viewReply")}
           </Button>
         </div>
         {open && (
@@ -169,7 +172,7 @@ function PostCard({ post }: { post: Post }) {
                 mut.mutate({ data: { post_id: post.id, body: reply.trim() } });
               }}
             >
-              <Input value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Write a reply" maxLength={2000} />
+              <Input value={reply} onChange={(e) => setReply(e.target.value)} placeholder={t("community.replyPlaceholder")} maxLength={2000} />
               <Button type="submit" size="icon" disabled={mut.isPending}><Send className="h-4 w-4" /></Button>
             </form>
           </div>

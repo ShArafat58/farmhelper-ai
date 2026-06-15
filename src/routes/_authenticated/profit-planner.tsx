@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Coins, Loader2, ArrowUpDown, Trophy, AlertTriangle } from "lucide-react";
 
@@ -36,6 +37,7 @@ type Crop = {
 };
 
 function ProfitPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const fn = useServerFn(profitPlanner);
 
@@ -54,10 +56,10 @@ function ProfitPage() {
     onSuccess: (r) => {
       setResult({ crops: r.crops, currency: r.currency, season: r.season });
       setFallback(null);
-      toast.success("Plan ready");
+      toast.success(t("profit.ready"));
     },
     onError: (e: Error) => {
-      setFallback("We couldn't generate a plan right now. Please retry in a moment.");
+      setFallback(t("profit.fallback"));
       toast.error(e.message);
     },
   });
@@ -79,7 +81,7 @@ function ProfitPage() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const a = Number(area);
-    if (!Number.isFinite(a) || a <= 0) return toast.error("Area must be > 0");
+    if (!Number.isFinite(a) || a <= 0) return toast.error(t("profit.areaPositive"));
     mut.mutate({
       data: {
         area: a,
@@ -103,17 +105,17 @@ function ProfitPage() {
         <div className="flex items-center gap-3">
           <Coins className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Profit Planner</h1>
-            <p className="text-sm text-muted-foreground">AI-ranked profitable crops for your land, region and season.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("profit.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("profit.subtitle")}</p>
           </div>
         </div>
 
         <Card className="mt-6">
-          <CardHeader><CardTitle className="text-lg">Inputs</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-lg">{t("profit.inputs")}</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
-                <Label>Region (override)</Label>
+                <Label>{t("profit.regionOverride")}</Label>
                 <Select value={country} onValueChange={setCountry}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -121,21 +123,21 @@ function ProfitPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2"><Label>Region / state</Label>
-                <Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder="optional" />
+              <div className="grid gap-2"><Label>{t("profit.regionState")}</Label>
+                <Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder={t("profit.regionPlaceholder")} />
               </div>
-              <div className="grid gap-2"><Label>Area</Label>
+              <div className="grid gap-2"><Label>{t("profit.area")}</Label>
                 <Input type="number" step="0.01" value={area} onChange={(e) => setArea(e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Area unit</Label>
+                <Label>{t("profit.areaUnit")}</Label>
                 <Select value={areaUnit} onValueChange={setAreaUnit}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{AREA_UNITS.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Currency</Label>
+                <Label>{t("profit.currency")}</Label>
                 <Select value={currency} onValueChange={setCurrency}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{COMMON_CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
@@ -143,7 +145,7 @@ function ProfitPage() {
               </div>
               <div className="flex items-end">
                 <Button type="submit" disabled={mut.isPending} className="w-full">
-                  {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Planning…</> : "Plan profitable crops"}
+                  {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> {t("profit.planning")}</> : t("profit.plan")}
                 </Button>
               </div>
             </form>
@@ -158,7 +160,7 @@ function ProfitPage() {
         {result && (
           <div className="mt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{sorted.length} crops · season: {result.season} · currency: {result.currency}</p>
+              <p className="text-sm text-muted-foreground">{t("profit.summary", { count: sorted.length, season: result.season, currency: result.currency })}</p>
             </div>
 
             {top && (
@@ -166,7 +168,7 @@ function ProfitPage() {
                 <CardContent className="flex items-center gap-3 p-4">
                   <Trophy className="h-6 w-6 text-primary" />
                   <div className="flex-1">
-                    <div className="font-semibold">Best profit: {top.crop}</div>
+                    <div className="font-semibold">{t("profit.bestProfit", { crop: top.crop })}</div>
                     <div className="text-xs text-muted-foreground">{top.notes}</div>
                   </div>
                   <div className="text-right font-semibold">{top.est_profit.toLocaleString()} {result.currency}</div>
@@ -178,12 +180,12 @@ function ProfitPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead><button onClick={() => toggleSort("crop")} className="flex items-center gap-1">Crop <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead><button onClick={() => toggleSort("est_cost")} className="flex items-center gap-1">Cost <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead><button onClick={() => toggleSort("est_revenue")} className="flex items-center gap-1">Revenue <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead><button onClick={() => toggleSort("est_profit")} className="flex items-center gap-1">Profit <ArrowUpDown className="h-3 w-3" /></button></TableHead>
-                    <TableHead>Demand</TableHead>
-                    <TableHead>Season fit</TableHead>
+                    <TableHead><button onClick={() => toggleSort("crop")} className="flex items-center gap-1">{t("profit.cols.crop")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead><button onClick={() => toggleSort("est_cost")} className="flex items-center gap-1">{t("profit.cols.cost")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead><button onClick={() => toggleSort("est_revenue")} className="flex items-center gap-1">{t("profit.cols.revenue")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead><button onClick={() => toggleSort("est_profit")} className="flex items-center gap-1">{t("profit.cols.profit")} <ArrowUpDown className="h-3 w-3" /></button></TableHead>
+                    <TableHead>{t("profit.cols.demand")}</TableHead>
+                    <TableHead>{t("profit.cols.seasonFit")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

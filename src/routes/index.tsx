@@ -5,6 +5,7 @@ import { Stethoscope, TrendingUp, CalendarDays, Store, ArrowRight } from "lucide
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import heroAsset from "@/assets/hero-farm.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,16 +39,24 @@ function Landing() {
   return (
     <SiteLayout>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 via-background to-background">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <section
+        className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/30 via-primary/10 to-background"
+        style={{
+          backgroundImage: `url("${heroAsset.url}")`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background/95 dark:from-background/90 dark:via-background/80 dark:to-background" />
+        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <span className="inline-block rounded-full border border-primary/40 bg-primary/15 px-3 py-1 text-xs font-medium text-primary backdrop-blur-sm">
               {t("landing.heroEyebrow")}
             </span>
-            <h1 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="mt-5 text-4xl font-bold tracking-tight text-foreground drop-shadow-sm sm:text-5xl lg:text-6xl">
               {t("landing.heroTitle")}
             </h1>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-5 text-base leading-relaxed text-foreground/85 sm:text-lg">
               {t("landing.heroSubtitle")}
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -56,13 +65,14 @@ function Landing() {
                   {t("landing.ctaStart")} <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" asChild className="bg-background/80 backdrop-blur-sm">
                 <Link to="/auth/login">{t("landing.ctaLogin")}</Link>
               </Button>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* Features */}
       <section className="mx-auto max-w-6xl px-4 py-16">

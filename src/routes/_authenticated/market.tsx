@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Plus, Trash2, Pencil, Phone, Flag, CheckCircle2, Store, LineChart, Sparkles, Loader2 } from "lucide-react";
 
@@ -29,16 +30,17 @@ export const Route = createFileRoute("/_authenticated/market")({
 });
 
 function MarketPage() {
+  const { t } = useTranslation();
   return (
     <SiteLayout>
       <section className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight">Market</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Live prices and direct-to-buyer classifieds.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("market.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("market.subtitle")}</p>
 
         <Tabs defaultValue="prices" className="mt-6">
           <TabsList>
-            <TabsTrigger value="prices"><LineChart className="mr-1 h-4 w-4" /> Prices</TabsTrigger>
-            <TabsTrigger value="sell"><Store className="mr-1 h-4 w-4" /> Sell</TabsTrigger>
+            <TabsTrigger value="prices"><LineChart className="mr-1 h-4 w-4" /> {t("market.tabs.prices")}</TabsTrigger>
+            <TabsTrigger value="sell"><Store className="mr-1 h-4 w-4" /> {t("market.tabs.sell")}</TabsTrigger>
           </TabsList>
           <TabsContent value="prices" className="mt-4"><PricesTab /></TabsContent>
           <TabsContent value="sell" className="mt-4"><SellTab /></TabsContent>
@@ -51,6 +53,7 @@ function MarketPage() {
 /* ---------------- Prices ---------------- */
 
 function PricesTab() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const fn = useServerFn(listPricesForRegion);
   const q = useQuery({
@@ -59,7 +62,6 @@ function PricesTab() {
     queryFn: () => fn({ data: { country: profile?.country ?? null, region: profile?.region ?? null } }),
   });
 
-  // Build crop→latest/previous to compute trend
   type Row = { id: string; crop_name: string; price: number; currency: string; unit: string; as_of: string; region: string | null };
   const rows = (q.data ?? []) as Row[];
   const byCrop = new Map<string, Row[]>();
@@ -78,19 +80,22 @@ function PricesTab() {
   return (
     <div>
       <p className="text-xs text-muted-foreground">
-        Showing prices for {profile?.region ? `${profile.region}, ` : ""}{profile?.country ?? "your region"}.
+        {t("market.showingFor", {
+          region: profile?.region ? `${profile.region}, ` : "",
+          country: profile?.country ?? t("settings.region"),
+        })}
       </p>
       <div className="mt-3 space-y-2">
         {q.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-14" />)}
         {q.isError && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
-            <p className="text-sm text-destructive">Could not load prices.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>Retry</Button>
+            <p className="text-sm text-destructive">{t("market.loadErrorPrices")}</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => q.refetch()}>{t("common.retry")}</Button>
           </div>
         )}
         {q.data && grouped.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No prices available yet for your region. Set your country/region in Settings to see relevant data.
+            {t("market.noPrices")}
           </div>
         )}
         {grouped.map(({ crop, latest, trend }) => (
@@ -105,6 +110,7 @@ function PricesTab() {
 type PriceRow = { id: string; crop_name: string; price: number; currency: string; unit: string; as_of: string; region: string | null };
 
 function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; trend: number }) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const adviseFn = useServerFn(sellAdvisor);
   const [open, setOpen] = useState(false);
@@ -131,7 +137,7 @@ function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; tr
       setAdvice(r.advice);
     } catch (e) {
       toast.error((e as Error).message);
-      setAdvice("AI is unavailable. Please retry shortly.");
+      setAdvice(t("market.aiUnavailable"));
     } finally {
       setLoading(false);
     }
@@ -142,7 +148,7 @@ function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; tr
       <CardContent className="flex items-center justify-between gap-3 p-4">
         <div className="min-w-0">
           <div className="font-medium">{crop}</div>
-          <div className="text-xs text-muted-foreground">{latest.region ?? "—"} · as of {latest.as_of}</div>
+          <div className="text-xs text-muted-foreground">{latest.region ?? "—"} · {t("market.asOf", { date: latest.as_of })}</div>
         </div>
         <div className="text-right">
           <div className="font-semibold">{latest.price} {latest.currency} <span className="text-xs text-muted-foreground">/ {latest.unit}</span></div>
@@ -155,13 +161,13 @@ function PriceCard({ crop, latest, trend }: { crop: string; latest: PriceRow; tr
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" onClick={ask}>
-              <Sparkles className="mr-1 h-3 w-3" /> Ask AI
+              <Sparkles className="mr-1 h-3 w-3" /> {t("market.askAi")}
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Sell or hold — {crop}?</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t("market.sellOrHold", { crop })}</DialogTitle></DialogHeader>
             {loading ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Thinking…</div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t("market.thinking")}</div>
             ) : (
               <p className="whitespace-pre-wrap text-sm">{advice}</p>
             )}
@@ -181,6 +187,7 @@ type Listing = {
 };
 
 function SellTab() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { profile, user } = useAuth();
   const listFn = useServerFn(listActiveListings);
@@ -203,34 +210,34 @@ function SellTab() {
 
   const create = useMutation({
     mutationFn: createFn,
-    onSuccess: () => { invalidate(); toast.success("Listing posted"); setOpen(false); },
+    onSuccess: () => { invalidate(); toast.success(t("market.posted")); setOpen(false); },
     onError: (e: Error) => toast.error(e.message),
   });
   const update = useMutation({
     mutationFn: updateFn,
-    onSuccess: () => { invalidate(); toast.success("Listing updated"); setOpen(false); setEditing(null); },
+    onSuccess: () => { invalidate(); toast.success(t("market.updated")); setOpen(false); setEditing(null); },
     onError: (e: Error) => toast.error(e.message),
   });
   const del = useMutation({
     mutationFn: delFn,
-    onSuccess: () => { invalidate(); toast.success("Listing deleted"); },
+    onSuccess: () => { invalidate(); toast.success(t("market.deleted")); },
     onError: (e: Error) => toast.error(e.message),
   });
   const sold = useMutation({
     mutationFn: soldFn,
-    onSuccess: () => { invalidate(); toast.success("Marked sold"); },
+    onSuccess: () => { invalidate(); toast.success(t("market.markedSold")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Active listings</h2>
-          <p className="text-xs text-muted-foreground">Sell direct. Contact details are revealed on request.</p>
+          <h2 className="text-lg font-semibold">{t("market.activeListings")}</h2>
+          <p className="text-xs text-muted-foreground">{t("market.activeSubtitle")}</p>
         </div>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-          <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> New listing</Button></DialogTrigger>
+          <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" /> {t("market.newListing")}</Button></DialogTrigger>
           <ListingDialog
             initial={editing}
             defaults={{ country: profile?.country ?? "", region: profile?.region ?? "", currency: profile?.currency ?? "USD" }}
@@ -248,20 +255,20 @@ function SellTab() {
         {all.isLoading && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-44" />)}
         {all.isError && (
           <div className="col-span-full rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
-            <p className="text-sm text-destructive">Could not load listings.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => all.refetch()}>Retry</Button>
+            <p className="text-sm text-destructive">{t("market.loadErrorListings")}</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => all.refetch()}>{t("common.retry")}</Button>
           </div>
         )}
         {all.data && all.data.length === 0 && (
           <div className="col-span-full rounded-lg border border-dashed p-10 text-center">
             <Store className="mx-auto h-10 w-10 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">No active listings yet — be the first to post.</p>
+            <p className="mt-3 text-sm text-muted-foreground">{t("market.noListings")}</p>
           </div>
         )}
         {(all.data as Listing[] | undefined)?.map((l) => (
           <ListingCard key={l.id} listing={l} isOwner={l.user_id === user?.id}
             onEdit={() => { setEditing(l); setOpen(true); }}
-            onDelete={() => { if (confirm("Delete this listing?")) del.mutate({ data: { id: l.id } }); }}
+            onDelete={() => { if (confirm(t("common.confirmDelete"))) del.mutate({ data: { id: l.id } }); }}
             onSold={() => sold.mutate({ data: { id: l.id } })}
           />
         ))}
@@ -269,7 +276,7 @@ function SellTab() {
 
       {mine.data && mine.data.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-lg font-semibold">My listings</h2>
+          <h2 className="text-lg font-semibold">{t("market.myListings")}</h2>
           <div className="mt-3 grid gap-2">
             {(mine.data as Listing[]).map((l) => (
               <Card key={l.id}>
@@ -292,6 +299,7 @@ function ListingCard({
   listing: Listing; isOwner: boolean;
   onEdit: () => void; onDelete: () => void; onSold: () => void;
 }) {
+  const { t } = useTranslation();
   const signedFn = useServerFn(getImageSignedUrl);
   const revealFn = useServerFn(revealContact);
   const reportFn = useServerFn(reportListing);
@@ -312,7 +320,7 @@ function ListingCard({
     try {
       const r = await revealFn({ data: { listing_id: listing.id } });
       setContact(r.contact_phone);
-      toast.success(`${r.remaining} reveals left today`);
+      toast.success(t("market.revealsLeft", { n: r.remaining }));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -321,7 +329,7 @@ function ListingCard({
   async function report() {
     try {
       await reportFn({ data: { listing_id: listing.id, reason: null } });
-      toast.success("Reported. Thanks — admins will review.");
+      toast.success(t("market.reportSent"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -340,16 +348,16 @@ function ListingCard({
         <div className="text-muted-foreground">{listing.qty} {listing.unit} · {listing.region ?? listing.country ?? "—"}</div>
         {contact
           ? <div className="rounded bg-accent px-2 py-1 text-sm font-medium">{contact}</div>
-          : <Button variant="outline" size="sm" onClick={reveal}><Phone className="mr-1 h-3 w-3" /> Reveal contact</Button>}
+          : <Button variant="outline" size="sm" onClick={reveal}><Phone className="mr-1 h-3 w-3" /> {t("market.revealContact")}</Button>}
         <div className="flex flex-wrap gap-2 pt-1">
           {isOwner ? (
             <>
-              <Button variant="outline" size="sm" onClick={onEdit}><Pencil className="mr-1 h-3 w-3" /> Edit</Button>
-              <Button variant="outline" size="sm" onClick={onSold}><CheckCircle2 className="mr-1 h-3 w-3" /> Sold</Button>
-              <Button variant="outline" size="sm" onClick={onDelete}><Trash2 className="mr-1 h-3 w-3" /> Delete</Button>
+              <Button variant="outline" size="sm" onClick={onEdit}><Pencil className="mr-1 h-3 w-3" /> {t("common.edit")}</Button>
+              <Button variant="outline" size="sm" onClick={onSold}><CheckCircle2 className="mr-1 h-3 w-3" /> {t("market.sold")}</Button>
+              <Button variant="outline" size="sm" onClick={onDelete}><Trash2 className="mr-1 h-3 w-3" /> {t("common.delete")}</Button>
             </>
           ) : (
-            <Button variant="ghost" size="sm" onClick={report}><Flag className="mr-1 h-3 w-3" /> Report</Button>
+            <Button variant="ghost" size="sm" onClick={report}><Flag className="mr-1 h-3 w-3" /> {t("market.report")}</Button>
           )}
         </div>
       </CardContent>
@@ -369,6 +377,7 @@ function ListingDialog({
     country: string | null; region: string | null; contact_phone: string; image_path: string | null;
   }) => void;
 }) {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState(initial?.crop_name ?? "");
   const [qty, setQty] = useState(initial?.qty?.toString() ?? "");
   const [unit, setUnit] = useState(initial?.unit ?? "kg");
@@ -384,8 +393,8 @@ function ListingDialog({
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return toast.error("JPG/PNG/WEBP only");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5 MB");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return toast.error(t("market.errors.imageType"));
+    if (file.size > 5 * 1024 * 1024) return toast.error(t("market.errors.imageSize"));
     setUploading(true);
     const ext = file.name.split(".").pop() ?? "jpg";
     const path = `${userId}/listings/${crypto.randomUUID()}.${ext}`;
@@ -393,19 +402,19 @@ function ListingDialog({
     setUploading(false);
     if (error) return toast.error(error.message);
     setImagePath(path);
-    toast.success("Image uploaded");
+    toast.success(t("market.imageUploaded"));
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
     const qn = Number(qty); const pn = Number(price);
-    if (!crop.trim()) return setErr("Crop is required.");
-    if (!Number.isFinite(qn) || qn <= 0) return setErr("Qty must be greater than 0.");
-    if (!unit.trim()) return setErr("Unit is required.");
-    if (!Number.isFinite(pn) || pn <= 0) return setErr("Price must be greater than 0.");
-    if (!currency.trim()) return setErr("Currency is required.");
-    if (phone.trim().length < 4) return setErr("Contact phone is required.");
+    if (!crop.trim()) return setErr(t("market.errors.cropRequired"));
+    if (!Number.isFinite(qn) || qn <= 0) return setErr(t("market.errors.qtyPositive"));
+    if (!unit.trim()) return setErr(t("market.errors.unitRequired"));
+    if (!Number.isFinite(pn) || pn <= 0) return setErr(t("market.errors.pricePositive"));
+    if (!currency.trim()) return setErr(t("market.errors.currencyRequired"));
+    if (phone.trim().length < 4) return setErr(t("market.errors.phoneRequired"));
     onSubmit({
       crop_name: crop.trim(), qty: qn, unit: unit.trim(), price: pn, currency: currency.trim().toUpperCase(),
       country: country.trim() ? country.trim().toUpperCase().slice(0, 2) : null,
@@ -417,30 +426,30 @@ function ListingDialog({
 
   return (
     <DialogContent className="max-h-[90vh] overflow-y-auto">
-      <DialogHeader><DialogTitle>{initial ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
+      <DialogHeader><DialogTitle>{initial ? t("market.editListing") : t("market.newListing")}</DialogTitle></DialogHeader>
       <form className="space-y-3" onSubmit={submit}>
-        <div className="grid gap-2"><Label>Crop</Label><Input value={crop} onChange={(e) => setCrop(e.target.value)} maxLength={80} /></div>
+        <div className="grid gap-2"><Label>{t("market.fields.crop")}</Label><Input value={crop} onChange={(e) => setCrop(e.target.value)} maxLength={80} /></div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Qty</Label><Input type="number" step="0.01" value={qty} onChange={(e) => setQty(e.target.value)} /></div>
-          <div className="grid gap-2"><Label>Unit</Label><Input value={unit} onChange={(e) => setUnit(e.target.value)} maxLength={20} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.qty")}</Label><Input type="number" step="0.01" value={qty} onChange={(e) => setQty(e.target.value)} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.unit")}</Label><Input value={unit} onChange={(e) => setUnit(e.target.value)} maxLength={20} /></div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Price</Label><Input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
-          <div className="grid gap-2"><Label>Currency</Label><Input value={currency} onChange={(e) => setCurrency(e.target.value)} maxLength={8} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.price")}</Label><Input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.currency")}</Label><Input value={currency} onChange={(e) => setCurrency(e.target.value)} maxLength={8} /></div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-2"><Label>Country (ISO-2)</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={2} /></div>
-          <div className="grid gap-2"><Label>Region</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={80} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.country")}</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={2} /></div>
+          <div className="grid gap-2"><Label>{t("market.fields.region")}</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={80} /></div>
         </div>
-        <div className="grid gap-2"><Label>Contact phone</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={30} /></div>
+        <div className="grid gap-2"><Label>{t("market.fields.phone")}</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={30} /></div>
         <div className="grid gap-2">
-          <Label>Image (optional)</Label>
+          <Label>{t("market.fields.photo")} ({t("common.optional")})</Label>
           <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} disabled={uploading} />
-          {imagePath && <p className="text-xs text-muted-foreground">Image attached.</p>}
+          {imagePath && <p className="text-xs text-muted-foreground">{t("cropDoctor.imageAttached")}</p>}
         </div>
         {err && <p className="text-sm text-destructive">{err}</p>}
         <DialogFooter>
-          <Button type="submit" disabled={submitting || uploading}>{submitting ? "Saving…" : "Save"}</Button>
+          <Button type="submit" disabled={submitting || uploading}>{submitting ? t("common.saving") : t("common.save")}</Button>
         </DialogFooter>
       </form>
     </DialogContent>

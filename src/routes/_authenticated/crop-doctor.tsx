@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Stethoscope, Loader2, Camera, AlertTriangle } from "lucide-react";
 
@@ -42,6 +43,7 @@ type DiagnosisRow = {
 };
 
 function CropDoctorPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { user, profile } = useAuth();
   const diagFn = useServerFn(cropDoctor);
@@ -54,18 +56,17 @@ function CropDoctorPage() {
   const [imagePath, setImagePath] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [fallback, setFallback] = useState<string | null>(null);
+  const [imgError, setImgError] = useState<string | null>(null);
 
   const mut = useMutation({
     mutationFn: diagFn,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["diagnoses"] });
-      toast.success("Diagnosis ready");
+      toast.success(t("cropDoctor.ready"));
       setFallback(null);
     },
     onError: (e: Error) => {
-      setFallback(
-        `We couldn't reach the AI right now. General guidance for ${crop || "your crop"}: inspect leaves daily, remove infected parts, water in the morning, and avoid overhead irrigation. Please retry.`,
-      );
+      setFallback(t("cropDoctor.fallback", { crop: crop || t("cropDoctor.cropName") }));
       toast.error(e.message);
     },
   });
@@ -73,8 +74,8 @@ function CropDoctorPage() {
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return toast.error("JPG/PNG/WEBP only");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5 MB");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return toast.error(t("market.errors.imageType"));
+    if (file.size > 5 * 1024 * 1024) return toast.error(t("market.errors.imageSize"));
     setUploading(true);
     const ext = file.name.split(".").pop() ?? "jpg";
     const path = `${user.id}/diagnoses/${crypto.randomUUID()}.${ext}`;
@@ -82,15 +83,22 @@ function CropDoctorPage() {
     setUploading(false);
     if (error) return toast.error(error.message);
     setImagePath(path);
-    toast.success("Image attached");
+    setImgError(null);
+    toast.success(t("cropDoctor.imageAttached"));
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!crop.trim() || symptoms.trim().length < 3) {
-      toast.error("Add crop name and a few words about the symptoms.");
+      toast.error(t("cropDoctor.missingInputs"));
       return;
     }
+    if (!imagePath) {
+      setImgError(t("cropDoctor.photoMissing"));
+      toast.error(t("cropDoctor.photoMissing"));
+      return;
+    }
+    setImgError(null);
     mut.mutate({
       data: {
         crop_name: crop.trim(),
@@ -112,28 +120,29 @@ function CropDoctorPage() {
         <div className="flex items-center gap-3">
           <Stethoscope className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Crop Doctor</h1>
-            <p className="text-sm text-muted-foreground">Describe symptoms (optionally add a photo) and get AI guidance.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("cropDoctor.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("cropDoctor.subtitle")}</p>
           </div>
         </div>
 
         <Card className="mt-6">
-          <CardHeader><CardTitle className="text-lg">New diagnosis</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-lg">{t("cropDoctor.newDiagnosis")}</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={submit} className="space-y-3">
-              <div className="grid gap-2"><Label>Crop name</Label>
-                <Input value={crop} onChange={(e) => setCrop(e.target.value)} placeholder="e.g. Tomato, Rice" maxLength={80} />
+              <div className="grid gap-2"><Label>{t("cropDoctor.cropName")}</Label>
+                <Input value={crop} onChange={(e) => setCrop(e.target.value)} placeholder={t("cropDoctor.cropPlaceholder")} maxLength={80} />
               </div>
-              <div className="grid gap-2"><Label>Symptoms</Label>
-                <Textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} rows={4} placeholder="Yellow spots on leaves, wilting…" maxLength={2000} />
+              <div className="grid gap-2"><Label>{t("cropDoctor.symptoms")}</Label>
+                <Textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} rows={4} placeholder={t("cropDoctor.symptomsPlaceholder")} maxLength={2000} />
               </div>
               <div className="grid gap-2">
-                <Label>Photo (optional)</Label>
-                <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} disabled={uploading} />
-                {imagePath && <p className="text-xs text-muted-foreground flex items-center gap-1"><Camera className="h-3 w-3" /> Image attached</p>}
+                <Label>{t("cropDoctor.photoRequired")}</Label>
+                <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} disabled={uploading} aria-invalid={!!imgError} />
+                {imagePath && <p className="text-xs text-muted-foreground flex items-center gap-1"><Camera className="h-3 w-3" /> {t("cropDoctor.imageAttached")}</p>}
+                {imgError && <p className="text-xs text-destructive">{imgError}</p>}
               </div>
               <Button type="submit" disabled={mut.isPending || uploading}>
-                {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Diagnosing…</> : "Diagnose"}
+                {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> {t("cropDoctor.diagnosing")}</> : t("cropDoctor.diagnose")}
               </Button>
             </form>
             {fallback && (
@@ -144,13 +153,13 @@ function CropDoctorPage() {
           </CardContent>
         </Card>
 
-        {latest && <DiagnosisCard row={latest} title="Latest result" />}
+        {latest && <DiagnosisCard row={latest} title={t("cropDoctor.latestResult")} />}
 
-        <h2 className="mt-10 text-lg font-semibold">History</h2>
+        <h2 className="mt-10 text-lg font-semibold">{t("cropDoctor.history")}</h2>
         <div className="mt-3 space-y-3">
           {history.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-24" />)}
           {history.data && history.data.length === 0 && (
-            <p className="text-sm text-muted-foreground">No diagnoses yet.</p>
+            <p className="text-sm text-muted-foreground">{t("cropDoctor.noHistory")}</p>
           )}
           {(history.data as DiagnosisRow[] | undefined)?.slice(1).map((d) => (
             <DiagnosisCard key={d.id} row={d} />
@@ -162,28 +171,29 @@ function CropDoctorPage() {
 }
 
 function DiagnosisCard({ row, title }: { row: DiagnosisRow; title?: string }) {
+  const { t } = useTranslation();
   const r = row.ai_result;
   return (
     <Card className={title ? "mt-6 border-primary/40" : ""}>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-base">
-          <span>{title ?? row.crop_name ?? "Diagnosis"}</span>
-          {r && <Badge variant="secondary">{Math.round((r.confidence ?? 0) * 100)}% confidence</Badge>}
+          <span>{title ?? row.crop_name ?? t("cropDoctor.newDiagnosis")}</span>
+          {r && <Badge variant="secondary">{t("cropDoctor.confidence", { pct: Math.round((r.confidence ?? 0) * 100) })}</Badge>}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         <div className="text-xs text-muted-foreground">{row.crop_name} · {new Date(row.created_at).toLocaleDateString()}</div>
         {r ? (
           <div className="grid gap-2">
-            <Row k="Disease" v={r.disease_name} />
-            <Row k="Cause" v={r.cause} />
-            <Row k="Organic treatment" v={r.organic_treatment} />
-            <Row k="Chemical treatment" v={r.chemical_treatment} />
-            <Row k="Dosage" v={r.dosage} />
-            <Row k="Prevention" v={r.prevention} />
+            <Row k={t("cropDoctor.fields.disease")} v={r.disease_name} />
+            <Row k={t("cropDoctor.fields.cause")} v={r.cause} />
+            <Row k={t("cropDoctor.fields.organic")} v={r.organic_treatment} />
+            <Row k={t("cropDoctor.fields.chemical")} v={r.chemical_treatment} />
+            <Row k={t("cropDoctor.fields.dosage")} v={r.dosage} />
+            <Row k={t("cropDoctor.fields.prevention")} v={r.prevention} />
           </div>
         ) : (
-          <p className="text-muted-foreground">No AI result saved.</p>
+          <p className="text-muted-foreground">{t("cropDoctor.noResult")}</p>
         )}
       </CardContent>
     </Card>
