@@ -105,17 +105,17 @@ function ProfitPage() {
         <div className="flex items-center gap-3">
           <Coins className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Profit Planner</h1>
-            <p className="text-sm text-muted-foreground">AI-ranked profitable crops for your land, region and season.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("profit.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("profit.subtitle")}</p>
           </div>
         </div>
 
         <Card className="mt-6">
-          <CardHeader><CardTitle className="text-lg">Inputs</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-lg">{t("profit.inputs")}</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
-                <Label>Region (override)</Label>
+                <Label>{t("profit.regionOverride")}</Label>
                 <Select value={country} onValueChange={setCountry}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -123,21 +123,21 @@ function ProfitPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2"><Label>Region / state</Label>
-                <Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder="optional" />
+              <div className="grid gap-2"><Label>{t("profit.regionState")}</Label>
+                <Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder={t("profit.regionPlaceholder")} />
               </div>
-              <div className="grid gap-2"><Label>Area</Label>
+              <div className="grid gap-2"><Label>{t("profit.area")}</Label>
                 <Input type="number" step="0.01" value={area} onChange={(e) => setArea(e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Area unit</Label>
+                <Label>{t("profit.areaUnit")}</Label>
                 <Select value={areaUnit} onValueChange={setAreaUnit}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{AREA_UNITS.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Currency</Label>
+                <Label>{t("profit.currency")}</Label>
                 <Select value={currency} onValueChange={setCurrency}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{COMMON_CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
@@ -145,7 +145,7 @@ function ProfitPage() {
               </div>
               <div className="flex items-end">
                 <Button type="submit" disabled={mut.isPending} className="w-full">
-                  {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Planning…</> : "Plan profitable crops"}
+                  {mut.isPending ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> {t("profit.planning")}</> : t("profit.plan")}
                 </Button>
               </div>
             </form>
