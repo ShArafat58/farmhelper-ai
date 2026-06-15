@@ -17,6 +17,7 @@ import type { SupportedLang } from "@/i18n";
 
 const NAV_LINKS = [
   { key: "home", to: "/" },
+  { key: "overview", to: "/overview" },
   { key: "dashboard", to: "/dashboard" },
   { key: "farm", to: "/farm" },
   { key: "cropDoctor", to: "/crop-doctor" },
