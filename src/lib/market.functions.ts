@@ -140,7 +140,8 @@ export const revealContact = createServerFn({ method: "POST" })
       .insert({ user_id: context.userId, listing_id: data.listing_id });
     if (rErr) throw new Error(rErr.message);
 
-    const { data: listing, error: lErr } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: listing, error: lErr } = await supabaseAdmin
       .from("market_listings")
       .select("contact_phone")
       .eq("id", data.listing_id)
