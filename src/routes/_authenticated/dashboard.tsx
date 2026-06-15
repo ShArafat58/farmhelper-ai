@@ -97,14 +97,15 @@ function DashboardPage() {
                       <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                       <Tooltip
                         contentStyle={{
-                          background: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
+                          background: "var(--card)",
+                          border: "1px solid var(--border)",
                           borderRadius: 8,
                           fontSize: 12,
+                          color: "var(--card-foreground)",
                         }}
                       />
-                      <Bar dataKey="tasks" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name={t("dashboard.charts.tasks")} />
-                      <Bar dataKey="done" fill="hsl(var(--primary) / 0.5)" radius={[4, 4, 0, 0]} name={t("dashboard.charts.done")} />
+                      <Bar dataKey="tasks" fill="var(--primary)" radius={[4, 4, 0, 0]} name={t("dashboard.charts.tasks")} />
+                      <Bar dataKey="done" fill="color-mix(in oklab, var(--primary) 50%, transparent)" radius={[4, 4, 0, 0]} name={t("dashboard.charts.done")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
