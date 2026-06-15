@@ -25,15 +25,30 @@ export const Route = createFileRoute("/_authenticated/calendar")({
 
 function CalendarPage() {
   const qc = useQueryClient();
+  const { profile } = useAuth();
   const listFn = useServerFn(listTasks);
   const plotsFn = useServerFn(listPlots);
   const createFn = useServerFn(createTask);
   const toggleFn = useServerFn(toggleTaskStatus);
   const delFn = useServerFn(deleteTask);
+  const aiFn = useServerFn(cropCalendar);
 
   const q = useQuery({ queryKey: ["tasks"], queryFn: () => listFn() });
   const plotsQ = useQuery({ queryKey: ["plots"], queryFn: () => plotsFn() });
   const [open, setOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiCrop, setAiCrop] = useState("");
+  const [aiPlot, setAiPlot] = useState<string>("none");
+
+  const aiMut = useMutation({
+    mutationFn: aiFn,
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success(`Added ${r.inserted} AI tasks`);
+      setAiOpen(false); setAiCrop("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const create = useMutation({
     mutationFn: createFn,
